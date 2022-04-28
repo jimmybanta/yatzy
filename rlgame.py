@@ -24,17 +24,9 @@ class RLTest(AITest):
 
         turns = 0
         while turns < 15:
-            
-
-
-            
-            
-            for player in self.players:
-                print('')
-                print("{}'s Turn!".format(player.name))
-
-                self.AIturn_with_override(player)
+            self.ai_turn(player)
             turns += 1
+
 
         final_scores = self.calculate_final_scores()
         print("Game over! Now for the score...")
@@ -53,8 +45,8 @@ class RLTest(AITest):
 
 
     def ai_turn(self, player):
-        hand = tuple(YatzyHand())
-        play = None
+        hand = YatzyHand()
+        action = None
 
         rerolls = 0
         while rerolls < 2:
@@ -64,41 +56,38 @@ class RLTest(AITest):
 
             action = player.choose_action(hand, epsilon=True, reroll=True)
 
-            if action == 'reroll':
+            print('action: ', action)
+
+            if 'reroll' in action:
                 rerolls += 1
-                continue
+                indices = [int(k) for k in action if ord(k) < 53 and ord(k) > 47]
+
+                print('')
+                input('Rerolling indices {}'.format(indices))
+                print('')
+                hand = hand.reroll(indices)
             else:
                 print('Not rerolling')
                 print('')
                 break
-        
+
+        if 'reroll' in action:
+            action = player.choose_action(hand, epsilon=True, reroll=False)
 
 
-            if player.choose_reroll():
-                rerolls += 1
-                nums = player.choose_nums()
-                print('')
-                input('Rerolling indices {}'.format(nums))
-                print('')
-                hand = hand.reroll(nums)
-                play = player.choose_play(hand)
-            else:
-                print('Not rerolling')
-                print('')
-                play = player.choose_play(hand)
-                break
-        input('Hand: {}'.format(hand))
-
-
-        input('Play decided: {}'.format(play))
+        input('Action decided: {}'.format(action))
         print('')
 
-        score = getattr(hand, play)()
+        score = getattr(hand, action)()
 
-        player.update_scoresheet(play, score)
+        player.update_scoresheet(action, score)
         player.print_scoresheet()
 
 
 
-test = RLTest('6.0')
-print(test.ai_turn())
+if __name__ == "__main__":
+
+
+
+    test = RLTest('6.0')
+    test.play()

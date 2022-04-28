@@ -84,7 +84,7 @@ class YatzyHand(list):
     def one_pair(self):
         dice = [0]
         for i in range(1,7):
-            if self._sets[i] == 2:
+            if self._sets[i] >= 2:
                 dice.append(2 * i)
         return max(dice)
 
@@ -151,6 +151,7 @@ class YatzyHand(list):
         for _ in range(len(indices)):
             final.append(int(D6()))
 
+
         return YatzyHand(final)
 
 
@@ -158,6 +159,7 @@ if __name__ == '__main__':
     
     
    
-    hand = YatzyHand()
-    for i, die in enumerate(hand):
-        print(i, die)
+    hand = YatzyHand([6,6,6,6,6])
+    print(hand)
+    print(hand._sets)
+    print(hand.three_kind())

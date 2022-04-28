@@ -65,10 +65,10 @@ class ai_gen_sixpointzero(AIPlayer):
         self.q[(state, action)] = new_q
     
 
-    def choose_action(self, state, epsilon=False, reroll=False):
-        actions = self.available_actions()
-        if reroll:
-            actions.append('reroll')
+    def choose_action(self, hand, epsilon=False, reroll=False):
+        state = tuple([int(x) for x in hand])
+
+        actions = self.available_actions(reroll)
         
         random.shuffle(actions)
 
