@@ -295,7 +295,13 @@ class AITest(AIGame):
 
 
 
-game = AIGame_data('5.2')
 
 
-game.play(1000)
+if __name__ == "__main__":
+
+
+
+    game = AIGame_data('5.2')
+
+
+    game.play(1000)
