@@ -2,25 +2,35 @@
 
 from multiprocessing.spawn import old_main_modules
 import random
-
+import itertools as it
 
 from player import AIPlayer
 
 
 
-class ai_gen_six(AIPlayer):
+class ai_gen_sixpointzero(AIPlayer):
     def __init__(self, name, generation='6.0'):
         super().__init__(name, generation=generation)
         self.q = {}
         self.alpha = .5
         self.epsilon = .5
+
+        self.reroll_actions = []
+        for i in range(1, 6):
+            for comb in it.combinations([0, 1, 2, 3, 4], i):
+                self.reroll_actions.append(comb)
+
     
-    def available_actions(self):
+    def available_actions(self, reroll=False):
         actions = []
 
         for action in self.scoresheet:
             if self.scoresheet[action] == None:
                 actions.append(action)
+        
+        if reroll:
+            for ra in self.reroll_actions:
+                actions.append('reroll {}'.format(ra))
         
         return actions
         
@@ -87,8 +97,6 @@ class ai_gen_six(AIPlayer):
 
 if __name__ == '__main__':
 
-    player = ai_gen_six('joe')
-    player.populate_q()
-    print(player.q)
-    print(player.choose_action((1,1,1,1,1), epsilon=True, reroll=True))
+    player = ai_gen_sixpointzero('joe')
+    print(player.available_actions())
 
