@@ -4,9 +4,13 @@ import time
 
 
 from aigame import AIGame, AITest
-from ai_gen_6 import ai_gen_sixpointone, ai_gen_sixpointzero
+from ai_gen_6 import ai_gen_sixpointone, ai_gen_sixpointzero, ai_gen_sixpointtwo, ai_gen_sixpointthree
 from hand import YatzyHand
 from leaderboard import Leaderboard
+
+
+PLAYER = ai_gen_sixpointthree('karen')
+Q_TABLE = 'sixpointthree'
 
 STANDARD_SCORESHEET = {
             'ones': None, 
@@ -42,8 +46,8 @@ class RLGame(AIGame):
 
         self.make_name_lists()
 
-        player = ai_gen_sixpointone('bla')
-        player.read_q('sixpointone')
+        player = PLAYER 
+        player.read_q(Q_TABLE)
 
         for i in range(num):
 
@@ -119,12 +123,10 @@ class RLGame(AIGame):
 class RLTrainer(AIGame):
     
     def train(self, num):
-        name = 'karen'
-        player = ai_gen_sixpointone(name)
+        player = PLAYER
         self.players.append(player)
-        player.read_q('sixpointone')
 
-        input("Ok {}! Let's begin! ".format(name))
+        input("Ok {}! Let's begin! ".format(player.name))
 
         start = time.perf_counter()
         for i in range(num):
@@ -135,9 +137,10 @@ class RLTrainer(AIGame):
             
             if i % 1000 == 0:
                 print('Finished game {}'.format(i))
+                player.write_q(Q_TABLE)
         
 
-        player.write_q('sixpointone')
+        player.write_q(Q_TABLE)
         end = time.perf_counter()
         print('took {} seconds for {} runs'.format(end - start, num))
         
@@ -174,16 +177,13 @@ class RLTrainer(AIGame):
 
 
 
-
-
-
 class RLTest(AITest):
 
     def play(self):
         name = 'karen'
-        player = ai_gen_sixpointone(name)
+        player = ai_gen_sixpointtwo(name)
         self.players.append(player)
-        player.read_q('sixpointone')
+        player.read_q('sixpointtwo')
 
         input("Ok {}! Let's begin! ".format(name))
 
@@ -254,8 +254,5 @@ class RLTest(AITest):
 if __name__ == "__main__":
 
 
-
-    
-
-    game = RLGame('6.1.1')
+    game = RLGame('6.3')
     game.play(10000)

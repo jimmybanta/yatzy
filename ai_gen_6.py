@@ -1,6 +1,5 @@
 ## Reinforcement learning
 
-from multiprocessing.spawn import old_main_modules
 import random
 import itertools as it
 import json
@@ -151,6 +150,78 @@ class ai_gen_sixpointone(ai_gen_sixpointzero):
                 rewards.append(self.q[key])
 
         return sum(rewards) / len(rewards) if rewards else 0
+
+
+class ai_gen_sixpointtwo(ai_gen_sixpointone):
+    def __init__(self, name, generation='6.2'):
+        super().__init__(name, generation=generation)
+
+        self.divisors = {
+                'ones': 5, 
+                'twos': 10, 
+                'threes': 15, 
+                'fours': 20, 
+                'fives': 25, 
+                'sixes': 30, 
+                'one_pair': 12, 
+                'two_pair': 22, 
+                'three_kind': 18, 
+                'four_kind': 24,
+                'small_straight': 15,
+                'large_straight': 20, 
+                'full_house': 28, 
+                'chance': 30, 
+                'yatzy': 50
+            }
+        
+    def update(self, old_hand, action, reward, new_hand=False):
+        if action in self.actions_no_reroll:
+            reward /= self.divisors[action]
+
+        old_hand = tuple([int(x) for x in old_hand])
+        new_hand = tuple([int(x) for x in new_hand]) if new_hand else False
+
+        old_q = self.get_q_value(old_hand, action)
+        if new_hand:
+            future = self.future_reward(new_hand)
+            self.update_q_value(old_hand, action, old_q, reward, future)
+        else:
+            self.update_q_value(old_hand, action, old_q, reward, 0)
+
+    def copy(self):
+        copy = ai_gen_sixpointtwo(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
+
+
+class ai_gen_sixpointthree(ai_gen_sixpointtwo):
+    def __init__(self, name, generation='6.3'):
+        super().__init__(name, generation=generation)
+
+        self.divisors = {
+                'ones': 5, 
+                'twos': 10, 
+                'threes': 15, 
+                'fours': 20, 
+                'fives': 25, 
+                'sixes': 30, 
+                'one_pair': 12, 
+                'two_pair': 22, 
+                'three_kind': 18, 
+                'four_kind': 24,
+                'small_straight': 15,
+                'large_straight': 20, 
+                'full_house': 28, 
+                'chance': 30, 
+                'yatzy': 25
+            }
+
+    def copy(self):
+        copy = ai_gen_sixpointthree(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
 
 
 if __name__ == '__main__':
