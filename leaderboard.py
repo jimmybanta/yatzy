@@ -7,7 +7,13 @@ import numpy as np
 from matplotlib import colors
 import os.path
 
-GENERATIONS = ['human', '1.0', '1.1', '1.2', '2.0', '2.1', '3.0', '3.1', '3.2', '4.0', '4.1', '5.0', '5.1', '5.2', '6.0', '6.1',
+GENERATIONS = ['human', 
+                '1.0', '1.1', '1.2', 
+                '2.0', '2.1', 
+                '3.0', '3.1', '3.2', 
+                '4.0', '4.1', 
+                '5.0', '5.1', '5.2', 
+                '6.0', '6.1', '6.1.1'
                 ]
 
 N_BINS = 374
@@ -333,4 +339,4 @@ def analyze(gen):
 
 if __name__ == '__main__':
 
-    analyze('6.1')
+    analyze('6.1.1')

@@ -160,6 +160,4 @@ if __name__ == '__main__':
     
    
     hand = YatzyHand([6,6,6,6,6])
-    print(hand)
-    print(hand._sets)
-    print(hand.three_kind())
+    print(hand.chance())

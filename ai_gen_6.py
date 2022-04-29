@@ -130,7 +130,7 @@ class ai_gen_sixpointzero(AIPlayer):
 
 
 class ai_gen_sixpointone(ai_gen_sixpointzero):
-    def __init__(self, name, generation='6.1'):
+    def __init__(self, name, generation='6.1.1'):
         super().__init__(name, generation=generation)
         self.q = {}
         self.alpha = .5

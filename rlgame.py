@@ -122,6 +122,7 @@ class RLTrainer(AIGame):
         name = 'karen'
         player = ai_gen_sixpointone(name)
         self.players.append(player)
+        player.read_q('sixpointone')
 
         input("Ok {}! Let's begin! ".format(name))
 
@@ -256,5 +257,5 @@ if __name__ == "__main__":
 
     
 
-    game = RLGame('6.1')
+    game = RLGame('6.1.1')
     game.play(10000)
