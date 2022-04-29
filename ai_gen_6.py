@@ -122,15 +122,42 @@ class ai_gen_sixpointzero(AIPlayer):
 
 
             
+    def copy(self):
+        copy = ai_gen_sixpointone(self.name)
+        copy.scoresheet = self.scoresheet.copy()
 
+        return copy
+
+
+class ai_gen_sixpointone(ai_gen_sixpointzero):
+    def __init__(self, name, generation='6.1'):
+        super().__init__(name, generation=generation)
+        self.q = {}
+        self.alpha = .5
+        self.epsilon = .75
+
+        self.reroll_actions = []
+        for i in range(1, 6):
+            for comb in it.combinations([0, 1, 2, 3, 4], i):
+                self.reroll_actions.append(comb)
+        
+        self.actions_no_reroll = [key for key in self.scoresheet]
+
+
+    def future_reward(self, state):
+        rewards = []
+        for key in self.q.keys():
+            if key[0] == state and key[1] in self.actions_no_reroll:
+                rewards.append(self.q[key])
+
+        return sum(rewards) / len(rewards) if rewards else 0
 
 
 if __name__ == '__main__':
 
-    player = ai_gen_sixpointzero('joe')
-    player.read_q('test')
-    for key in player.q:
-        print(f'{key}: {player.q[key]}')
-        print(key[1])
+    player = ai_gen_sixpointone('joe')
+
+    print(player.generation)
+    
     
 

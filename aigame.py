@@ -302,7 +302,7 @@ if __name__ == "__main__":
 
 
 
-    game = AIGame_data('5.2')
+    game = AIGame('2.0')
 
 
     game.play(1000)

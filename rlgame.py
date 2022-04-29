@@ -4,8 +4,9 @@ import time
 
 
 from aigame import AIGame, AITest
-from ai_gen_6 import ai_gen_sixpointzero
+from ai_gen_6 import ai_gen_sixpointone, ai_gen_sixpointzero
 from hand import YatzyHand
+from leaderboard import Leaderboard
 
 STANDARD_SCORESHEET = {
             'ones': None, 
@@ -30,34 +31,49 @@ STANDARD_SCORESHEET = {
 ## make it so you can add reroll to list of available actions
 
 class RLGame(AIGame):
+    def __init__(self, gen):
+        super().__init__(gen=gen)
+
+
 
     def play(self, num):
-
         input('Welcome to Yatzy! Are you ready?   ')
         start = datetime.datetime.now()
 
         self.make_name_lists()
 
-        for _ in range(num):
+        player = ai_gen_sixpointone('bla')
+        player.read_q('sixpointone')
+
+        for i in range(num):
+
+            player.clear_scoresheet()
             first_name = random.choice(self.first_names)
             last_name = random.choice(self.last_names)
             name = first_name + ' ' + last_name
-            self.players.append(ai_gen_sixpointzero(name))
+            player.name = name
 
-    
-        turns = 0
-        while turns < 15:
-            for player in self.players:
+            turns = 0
+            while turns < 15:
                 self.ai_turn(player)
-            turns += 1
-            print('Turn {} complete'.format(turns))
+                turns += 1
+            
+            new_player = player.copy()
+            self.players.append(new_player)
+            if i % 1000 == 0:
+                print('Game {} complete'.format(i))
+        
 
         final_scores = self.calculate_final_scores()
         end = datetime.datetime.now()
         print('Time elapsed: {}'.format(end - start))
         print("Game over! Now for the leaderboard...")
 
-        self.print_final_scores(final_scores)
+        leaderboard = Leaderboard(self.gen)
+        leaderboard.run(final_scores)
+        print('')
+        print('')
+
 
 
     def ai_turn(self, player):
@@ -104,20 +120,23 @@ class RLTrainer(AIGame):
     
     def train(self, num):
         name = 'karen'
-        player = ai_gen_sixpointzero(name)
+        player = ai_gen_sixpointone(name)
         self.players.append(player)
 
         input("Ok {}! Let's begin! ".format(name))
 
         start = time.perf_counter()
-        for _ in range(num):
+        for i in range(num):
             player.clear_scoresheet()
         
             while None in player.scoresheet.values():
                 self.ai_train_turn(player)
+            
+            if i % 1000 == 0:
+                print('Finished game {}'.format(i))
         
 
-        player.write_q('test')
+        player.write_q('sixpointone')
         end = time.perf_counter()
         print('took {} seconds for {} runs'.format(end - start, num))
         
@@ -161,9 +180,9 @@ class RLTest(AITest):
 
     def play(self):
         name = 'karen'
-        player = ai_gen_sixpointzero(name)
+        player = ai_gen_sixpointone(name)
         self.players.append(player)
-        player.read_q('sixpointzero')
+        player.read_q('sixpointone')
 
         input("Ok {}! Let's begin! ".format(name))
 
@@ -230,10 +249,12 @@ class RLTest(AITest):
 
 
 
+
 if __name__ == "__main__":
 
 
 
-    game = RLTest('6.0')
-    game.play()
     
+
+    game = RLGame('6.1')
+    game.play(10000)
