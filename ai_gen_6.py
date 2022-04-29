@@ -4,6 +4,8 @@ import random
 import itertools as it
 import json
 
+from grpc import GenericRpcHandler
+
 from player import AIPlayer
 
 
@@ -222,6 +224,26 @@ class ai_gen_sixpointthree(ai_gen_sixpointtwo):
         copy.scoresheet = self.scoresheet.copy()
 
         return copy
+
+
+class ai_gen_sixpointfour(ai_gen_sixpointtwo):
+    def __init__(self, name, generation='6.4'):
+        super().__init__(name, generation=generation)
+    
+    def copy(self):
+        copy = ai_gen_sixpointfour(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
+    
+    def future_reward(self, state):
+        rewards = []
+        for key in self.q.keys():
+            if key[0] == state and key[1] in self.actions_no_reroll:
+                rewards.append(self.q[key])
+
+        return max(rewards) if rewards else 0
+
 
 
 if __name__ == '__main__':

@@ -4,13 +4,13 @@ import time
 
 
 from aigame import AIGame, AITest
-from ai_gen_6 import ai_gen_sixpointone, ai_gen_sixpointzero, ai_gen_sixpointtwo, ai_gen_sixpointthree
+from ai_gen_6 import ai_gen_sixpointone, ai_gen_sixpointzero, ai_gen_sixpointtwo, ai_gen_sixpointthree, ai_gen_sixpointfour
 from hand import YatzyHand
 from leaderboard import Leaderboard
 
 
-PLAYER = ai_gen_sixpointthree('karen')
-Q_TABLE = 'sixpointthree'
+PLAYER = ai_gen_sixpointfour('karen')
+Q_TABLE = 'sixpointfour'
 
 STANDARD_SCORESHEET = {
             'ones': None, 
@@ -180,12 +180,11 @@ class RLTrainer(AIGame):
 class RLTest(AITest):
 
     def play(self):
-        name = 'karen'
-        player = ai_gen_sixpointtwo(name)
+        player = PLAYER
         self.players.append(player)
-        player.read_q('sixpointtwo')
+        player.read_q(Q_TABLE)
 
-        input("Ok {}! Let's begin! ".format(name))
+        input("Ok {}! Let's begin! ".format(player.name))
 
         turns = 0
         while turns < 15:
@@ -254,5 +253,5 @@ class RLTest(AITest):
 if __name__ == "__main__":
 
 
-    game = RLGame('6.3')
+    game = RLGame('6.4')
     game.play(10000)
