@@ -3,6 +3,7 @@
 from multiprocessing.spawn import old_main_modules
 import random
 import itertools as it
+import json
 
 from player import AIPlayer
 
@@ -13,7 +14,7 @@ class ai_gen_sixpointzero(AIPlayer):
         super().__init__(name, generation=generation)
         self.q = {}
         self.alpha = .5
-        self.epsilon = .5
+        self.epsilon = .75
 
         self.reroll_actions = []
         for i in range(1, 6):
@@ -35,12 +36,16 @@ class ai_gen_sixpointzero(AIPlayer):
         return actions
         
     
-    def update(self, old_state, action, new_state, reward):
-        old_state = tuple(old_state)
-        new_state = tuple(new_state)
-        old_q = self.get_q_value(old_state, action)
-        future = self.future_reward(new_state)
-        self.update_q_value(old_state, action, old_q, reward, future)
+    def update(self, old_hand, action, reward, new_hand=False):
+        old_hand = tuple([int(x) for x in old_hand])
+        new_hand = tuple([int(x) for x in new_hand]) if new_hand else False
+
+        old_q = self.get_q_value(old_hand, action)
+        if new_hand:
+            future = self.future_reward(new_hand)
+            self.update_q_value(old_hand, action, old_q, reward, future)
+        else:
+            self.update_q_value(old_hand, action, old_q, reward, 0)
 
 
     def get_q_value(self, state, action):
@@ -74,7 +79,6 @@ class ai_gen_sixpointzero(AIPlayer):
 
         if epsilon:
             if random.random() < self.epsilon:
-                print('BAA')
                 return random.choice(actions)
             else:
                 return max(actions, key=lambda x:self.q[(state, x)] if (state, x) in self.q.keys() else 0)
@@ -93,10 +97,40 @@ class ai_gen_sixpointzero(AIPlayer):
                 self.q[(l, 'twos')] = random.randint(0,4)
         
 
+    def write_q(self, filename):
+        with open('q_tables/{}.json'.format(filename), 'w') as file:
+            temp = {}
+            for item in self.q.items():
+                temp[str(item[0])] = item[1]
+            
+            temp = sorted(temp.items(), key=lambda x:x[0])
+
+            final = {}
+            for key, value in temp:
+                final[key] = value
+
+            json.dump(final, file, indent=2)
+
+    
+    def read_q(self, filename):
+        with open('q_tables/{}.json'.format(filename), 'r') as file:
+            temp = json.load(file)
+            for key, value in temp.items():
+                roll = (int(key[2]), int(key[5]), int(key[8]), int(key[11]), int(key[14]))
+                action = key[19:-2]
+                self.q[(roll, action)] = value
+
+
+            
+
 
 
 if __name__ == '__main__':
 
     player = ai_gen_sixpointzero('joe')
-    print(player.available_actions())
+    player.read_q('test')
+    for key in player.q:
+        print(f'{key}: {player.q[key]}')
+        print(key[1])
+    
 

@@ -9,6 +9,7 @@ from numpy import average
 
 from ai_gen_4 import AI_gen_fourpointone, AI_gen_fourpointthree, AI_gen_fourpointzero, AI_gen_fourpointtwo
 from ai_gen_5 import AI_gen_fivepointone, AI_gen_fivepointtwo, AI_gen_fivepointzero
+from ai_gen_6 import ai_gen_sixpointzero
 
 
 from hand import YatzyHand
@@ -43,7 +44,7 @@ class AIGame(Game):
             first_name = random.choice(self.first_names)
             last_name = random.choice(self.last_names)
             name = first_name + ' ' + last_name
-            self.players.append(AI_gen_fivepointtwo(name))
+            self.players.append(ai_gen_sixpointzero(name))
 
     
         turns = 0

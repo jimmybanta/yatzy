@@ -51,6 +51,11 @@ class Player:
                 score += self.scoresheet[category]
         return score
 
+    def clear_scoresheet(self):
+        for key in self.scoresheet:
+            self.scoresheet[key] = None
+
+
 class AIPlayer(Player):
     def __init__(self, name, generation):
         super().__init__(name, ai=True, generation=generation)
