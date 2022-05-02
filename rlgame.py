@@ -12,27 +12,6 @@ from leaderboard import Leaderboard
 PLAYER = ai_gen_sixpointfour('karen')
 Q_TABLE = 'sixpointfour'
 
-STANDARD_SCORESHEET = {
-            'ones': None, 
-            'twos': None, 
-            'threes': None, 
-            'fours': None, 
-            'fives': None, 
-            'sixes': None, 
-            'one_pair': None, 
-            'two_pair': None, 
-            'three_kind': None, 
-            'four_kind': None,
-            'small_straight': None,
-            'large_straight': None, 
-            'full_house': None, 
-            'chance': None, 
-            'yatzy': None
-            }
-
-## remember to reset the scoresheet after each game
-
-## make it so you can add reroll to list of available actions
 
 class RLGame(AIGame):
     def __init__(self, gen):
