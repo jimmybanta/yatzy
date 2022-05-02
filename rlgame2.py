@@ -94,7 +94,7 @@ class RLGame2(AIGame):
                 print('{}: {} points'.format(item['name'], item['score']))
                 print('')
 
-class RLTrainer(AIGame):
+class RLTrainer2(AIGame):
     
     def train(self, num):
         player = PLAYER

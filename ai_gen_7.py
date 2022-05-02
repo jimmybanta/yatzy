@@ -58,13 +58,12 @@ class AIGenSevenPointZero(AIPlayer):
         hand = tuple([int(x) for x in hand])
         
         old_q = self.get_q_value(hand, action, q_table='reroll')
-        if action == 1:
+        if action == 'True':
             future = self.future_reward(hand, q_table='indices')
         else:
             future = self.future_reward(hand, q_table='moves')
         self.update_q_value(hand, action, old_q, 0, future, q_table='reroll')
     
-
     def update_indices(self, hand, action, new_hand):
         hand = tuple([int(x) for x in hand])
         new_hand = tuple([int(x) for x in new_hand])
@@ -74,14 +73,12 @@ class AIGenSevenPointZero(AIPlayer):
 
         self.update_q_value(hand, action, old_q, 0, future, q_table='indices')
 
-    
     def update_moves(self, hand, action, reward):
         hand = tuple([int(x) for x in hand])
 
         old_q = self.get_q_value(hand, action, q_table='moves')
 
         self.update_q_value(hand, action, old_q, reward, 0, q_table='moves')
-
 
     def get_q_value(self, hand, action, q_table=False):
         key = (hand, action)
@@ -166,14 +163,42 @@ class AIGenSevenPointZero(AIPlayer):
                         indices = tuple([int(x) for x in re.findall(r'\d', key[19:])])
                         q[(roll, indices)] = value
                 
-
-            
     def copy(self):
         copy = AIGenSevenPointZero(self.name)
         copy.scoresheet = self.scoresheet.copy()
 
         return copy
             
+
+class AIGenSevenPointOne(AIGenSevenPointZero):
+    def __init__(self, name, generation='7.1'):
+        super().__init__(name, generation=generation)
+        self.title = 'sevenpointzero'
+
+    
+    def update_reroll(self, hand, action):
+        hand = tuple([int(x) for x in hand])
+        
+        old_q = self.get_q_value(hand, action, q_table='reroll')
+        if action == 'True':
+            future = self.future_reward(hand, q_table='indices')
+        else:
+            future = self.future_reward(hand, q_table='moves')
+        self.update_q_value(hand, action, old_q, 0, future, q_table='reroll')
+
+
+    def future_reward(self, state, q_table=False):
+        q = getattr(self, 'q_{}'.format(q_table))
+        rewards = []
+        for key in q:
+            if state in key:
+                rewards.append(q[key])
+        
+        rewards.append(0)
+        return max(rewards)
+
+
+
 
     
 if __name__ == "__main__":
