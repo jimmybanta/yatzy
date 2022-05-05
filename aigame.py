@@ -110,6 +110,11 @@ class AIGame(Game):
         player.update_scoresheet(play, score)
 
 class AIGame_data(AIGame):
+    def __init__(self):
+        super().__init__(gen='5.2')
+        self.yatzy_hands = 0
+        self.total_rerolls = 0
+
     def play(self, num):
         input('Welcome to Yatzy! Are you ready?   ')
         start = datetime.datetime.now()
@@ -130,7 +135,6 @@ class AIGame_data(AIGame):
             turns += 1
             print('Turn {} complete'.format(turns))
 
-        final_scores = self.calculate_final_scores()
         end = datetime.datetime.now()
         print('Time elapsed: {}'.format(end - start))
         print("Game over! Now for the leaderboard...")
@@ -170,16 +174,55 @@ class AIGame_data(AIGame):
 
         print('Gen {}'.format(self.gen))
         print('')
+        '''
         for item in data:
             play = list(item.keys())[0]
             print(f"Total {play}: {item[play]} out of {num} ---- Average: {item['total'] / item[play]}")
-        
+        '''
+
         print('')
+        print('Total rerolls: {}'.format(self.total_rerolls))
+        print('Total yatzy hands: {}'.format(self.yatzy_hands))
+        print('')
+        '''
         print('Total top-sheet bonuses: {} out of {}'.format(top_sheet_bonuses[0], num))
         print('Average top-sheet score: {}'.format(average(top_sheet_bonuses[1] / num)))
+        '''
         print('')
         print('')
         
+
+    def AIturn_with_override(self, player):
+        hand = YatzyHand()
+        if hand.yatzy() == 50:
+            self.yatzy_hands += 1
+        play = None
+
+        rerolls = 0
+        while rerolls < 2:
+            override = player.override(hand)
+
+            if override[0]:
+                play = override[1]
+                break
+            elif player.choose_reroll():
+                rerolls += 1
+                self.total_rerolls += 1
+                nums = player.choose_nums(hand)
+                hand = hand.reroll(nums)
+                if hand.yatzy() == 50:
+                    self.yatzy_hands += 1
+                play = player.choose_play(hand)
+            else:
+                play = player.choose_play(hand)
+                break
+
+        play = player.choose_play(hand)
+
+        score = getattr(hand, play)()
+
+        player.update_scoresheet(play, score)
+
 
 class AITest(AIGame):
 
@@ -302,7 +345,7 @@ if __name__ == "__main__":
 
 
 
-    game = AIGame('2.0')
+    game = AIGame_data()
 
 
     game.play(1000)
