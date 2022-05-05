@@ -1,12 +1,13 @@
 import datetime
 import random
 import time
+from numpy import average
 
 
 from aigame import AIGame, AITest
 from hand import YatzyHand
 from leaderboard import Leaderboard
-from ai_gen_7 import AIGenSevenPointZero
+from ai_gen_7 import AIGenSevenPointOne, AIGenSevenPointZero
 
 
 
@@ -222,9 +223,129 @@ class RLTest2(AITest):
         player.print_scoresheet()
 
 
+class RLGameData(RLGame2):
+    def __init__(self):
+        super().__init__(gen='7.0')
+        self.yatzy_hands = 0
+        self.total_rerolls = 0
+
+
+    def play(self, num):
+        input('Welcome to Yatzy! Are you ready?   ')
+        start = datetime.datetime.now()
+
+        self.make_name_lists()
+
+        player = PLAYER 
+        player.read_q()
+
+        for i in range(num):
+
+            player.clear_scoresheet()
+            first_name = random.choice(self.first_names)
+            last_name = random.choice(self.last_names)
+            name = first_name + ' ' + last_name
+            player.name = name
+
+            turns = 0
+            while turns < 15:
+                self.ai_turn(player)
+                turns += 1
+            
+            new_player = player.copy()
+            self.players.append(new_player)
+            if i % 1000 == 0:
+                print('Game {} complete'.format(i))
+        
+
+        end = datetime.datetime.now()
+        print('Time elapsed: {}'.format(end - start))
+        print("Game over! Now for the leaderboard...")
+
+
+        data = [
+            {'ones': 0, 'total': 0},
+            {'twos': 0, 'total': 0},
+            {'threes': 0, 'total': 0},
+            {'fours': 0, 'total': 0},
+            {'fives': 0, 'total': 0},
+            {'sixes': 0, 'total': 0},
+            {'one_pair': 0, 'total': 0},
+            {'two_pair': 0, 'total': 0},
+            {'three_kind': 0, 'total': 0},
+            {'four_kind': 0, 'total': 0},
+            {'small_straight': 0, 'total': 0},
+            {'large_straight': 0, 'total': 0},
+            {'full_house': 0, 'total': 0},
+            {'chance': 0, 'total': 0},
+            {'yatzy': 0, 'total': 0}
+        ]
+        top_sheet_bonuses = [0, 0]
+
+        
+        for player in self.players:
+            sum = player.scoresheet['ones'] + player.scoresheet['twos'] + player.scoresheet['threes'] + player.scoresheet['fours'] + player.scoresheet['fives'] + player.scoresheet['sixes']
+            for i, item in enumerate(player.scoresheet.items()):
+                if item[1] != 0:
+                    data[i][item[0]] += 1
+                    data[i]['total'] += item[1]
+            if sum >= 63:
+                top_sheet_bonuses[0] += 1
+            top_sheet_bonuses[1] += sum
+                    
+        print('')
+        print('')
+        print('Gen {}'.format(self.gen))
+        print('')
+        '''
+        for item in data:
+            play = list(item.keys())[0]
+            print(f"Total {play}: {item[play]} out of {num} ---- Average: {item['total'] / item[play]}")
+        '''
+        
+
+        print('')
+        print('Total rerolls: {}'.format(self.total_rerolls))
+        print('Total yatzy hands: {}'.format(self.yatzy_hands))
+
+        print('')
+        '''
+        print('Total top-sheet bonuses: {} out of {}'.format(top_sheet_bonuses[0], num))
+        print('Average top-sheet score: {}'.format(average(top_sheet_bonuses[1] / num)))
+        '''
+        print('')
+        print('')
+
+
+    def ai_turn(self, player):
+        hand = YatzyHand()
+        if hand.yatzy() == 50:
+            self.yatzy_hands += 1 
+
+        rerolls = 0
+        while rerolls < 2:
+            reroll = player.choose_action(hand, epsilon=False, q_table='reroll')
+
+
+            if reroll == 'True':
+                indices = player.choose_action(hand, epsilon=False, q_table='indices')
+                hand = hand.reroll(indices)
+                if hand.yatzy() == 50:
+                    self.yatzy_hands += 1 
+                rerolls += 1
+                self.total_rerolls += 1
+            
+            else:
+                break
+
+        action = player.choose_action(hand, epsilon=False, q_table='moves')
+
+        score = getattr(hand, action)()
+
+        player.update_scoresheet(action, score)
 
 if __name__ == "__main__":
 
-    game = RLGame2("7.0")
-    game.play(10000)
+    game = RLGameData()
+    game.play(1000)
 
