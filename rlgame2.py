@@ -11,7 +11,7 @@ from ai_gen_7 import AIGenSevenPointOne, AIGenSevenPointZero
 
 
 
-PLAYER = AIGenSevenPointZero('karen')
+PLAYER = AIGenSevenPointOne('karen')
 
 
 class RLGame2(AIGame):
@@ -100,6 +100,8 @@ class RLTrainer2(AIGame):
     def train(self, num):
         player = PLAYER
         self.players.append(player)
+        player.read_q()
+        player.load_new_hands()
 
         input("Ok {}! Let's begin! ".format(player.name))
 
@@ -111,7 +113,7 @@ class RLTrainer2(AIGame):
             while None in player.scoresheet.values():
                 self.ai_train_turn(player)
             
-            if i % 1000 == 0:
+            if i % 100 == 0:
                 print('Finished game {}'.format(i))
                 player.write_q()
         
@@ -150,8 +152,6 @@ class RLTrainer2(AIGame):
 
         action = player.choose_action(hand, epsilon=True, q_table='moves')
         score = getattr(hand, action)()
-
-        score /= player.divisors[action]
 
         player.update_moves(hand, action, score)
         player.update_scoresheet(action, score)
@@ -225,7 +225,7 @@ class RLTest2(AITest):
 
 class RLGameData(RLGame2):
     def __init__(self):
-        super().__init__(gen='7.0')
+        super().__init__(gen='7.1')
         self.yatzy_hands = 0
         self.total_rerolls = 0
 
@@ -306,7 +306,7 @@ class RLGameData(RLGame2):
 
         print('')
         print('Total rerolls: {}'.format(self.total_rerolls))
-        print('Total yatzy hands: {}'.format(self.yatzy_hands))
+        #print('Total yatzy hands: {}'.format(self.yatzy_hands))
 
         print('')
         '''

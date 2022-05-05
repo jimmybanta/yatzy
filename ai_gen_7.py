@@ -4,8 +4,12 @@ import itertools as it
 import random
 import json
 import re
+import csv
+from tempfile import tempdir
+from weakref import finalize
 
 from player import AIPlayer
+from hand import YatzyHand
 
 
 class AIGenSevenPointZero(AIPlayer):
@@ -171,37 +175,88 @@ class AIGenSevenPointZero(AIPlayer):
             
 
 class AIGenSevenPointOne(AIGenSevenPointZero):
+    '''Updated how to update the indices q-table'''
     def __init__(self, name, generation='7.1'):
         super().__init__(name, generation=generation)
-        self.title = 'sevenpointzero'
+        self.title = 'sevenpointone'
+
+        self.one_hands = {}
+        self.two_hands = {}
+        self.three_hands = {}
+        self.four_hands = {}
+        self.five_hands = {}
+    
+    def update_indices(self, hand, action, new_hand=False):
+        hand = tuple([int(x) for x in hand])
+
+        old_q = self.get_q_value(hand, action, q_table='indices')
+
+        ## get average expected value of the action
+        possible_hands = self.possible_hands(hand, action)
+
+        rewards = []
+
+        for hand in possible_hands:
+            prob = possible_hands[hand]
+            reward = self.future_reward(hand, q_table='moves')
+
+            rewards.append(prob * reward)
+
+        future = sum(rewards)
+
+        self.update_q_value(hand, action, old_q, 0, future, q_table='indices')
+
+    def possible_hands(self, hand, indices):
+        '''Given a hand and indices to reroll, returns a dictionary
+        of possible new hands, and the probability of rolling them'''
+
+        d = {'1':'one', '2':'two', '3':'three', '4':'four', '5':'five'}
+
+        old_hand = [int(i) for i in hand]
+        new_hand = []
+
+        for i, die in enumerate(old_hand):
+            if i not in indices:
+                new_hand.append(die)
+
+        num = len(indices)
+
+        temp = getattr(self, '{}_hands'.format(d[str(num)]))
+
+        final = {}
+
+        for hand, prob in temp.items():
+            final[tuple(sorted(list(hand) + new_hand))] = prob
+
+        return final
 
     
-    def update_reroll(self, hand, action):
-        hand = tuple([int(x) for x in hand])
-        
-        old_q = self.get_q_value(hand, action, q_table='reroll')
-        if action == 'True':
-            future = self.future_reward(hand, q_table='indices')
-        else:
-            future = self.future_reward(hand, q_table='moves')
-        self.update_q_value(hand, action, old_q, 0, future, q_table='reroll')
+    def copy(self):
+        copy = AIGenSevenPointOne(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
 
 
-    def future_reward(self, state, q_table=False):
-        q = getattr(self, 'q_{}'.format(q_table))
-        rewards = []
-        for key in q:
-            if state in key:
-                rewards.append(q[key])
-        
-        rewards.append(0)
-        return max(rewards)
+    def load_new_hands(self):
+        d = {'1':'one', '2':'two', '3':'three', '4':'four', '5':'five'}
+        for i in range(1,6):
+            new_hands = getattr(self, '{}_hands'.format(d[str(i)]))
+            with open(f'new_hands/{i}.csv', 'r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    dice = re.findall(r'\d', row['hand'])
+                    dice = [int(x) for x in dice]
+                    new_hands[tuple(dice)] = float(row['probability'])
 
+    
+
+                    
 
 
 
     
 if __name__ == "__main__":
-    player = AIGenSevenPointZero('karen')
-    player.read_q()
-    print(player.q_moves)
+    player = AIGenSevenPointOne('karen')
+    player.load_new_hands()
+    print(player.possible_hands((1,2,3,4,5), (0,1,2)))
