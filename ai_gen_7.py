@@ -5,8 +5,6 @@ import random
 import json
 import re
 import csv
-from tempfile import tempdir
-from weakref import finalize
 
 from player import AIPlayer
 from hand import YatzyHand
@@ -250,12 +248,59 @@ class AIGenSevenPointOne(AIGenSevenPointZero):
                     new_hands[tuple(dice)] = float(row['probability'])
 
     
+class AIGenSevenPointTwo(AIGenSevenPointOne):
+    def __init__(self, name, generation='7.2'):
+        super().__init__(name, generation=generation)
+        self.title = 'sevenpointtwo'
 
-                    
-
-
-
+        self.divisors = {
+                'ones': 5, 
+                'twos': 10, 
+                'threes': 15, 
+                'fours': 20, 
+                'fives': 25, 
+                'sixes': 30, 
+                'one_pair': 12, 
+                'two_pair': 22, 
+                'three_kind': 19, 
+                'four_kind': 25,
+                'small_straight': 15,
+                'large_straight': 20, 
+                'full_house': 27, 
+                'chance': 30, 
+                'yatzy': 25
+            }
     
+
+    def update_moves(self, hand, action, reward):
+        hand = tuple([int(x) for x in hand])
+
+        reward /= self.divisors[action]
+
+        old_q = self.get_q_value(hand, action, q_table='moves')
+
+        self.update_q_value(hand, action, old_q, reward, 0, q_table='moves')
+
+
+    def copy(self):
+        copy = AIGenSevenPointTwo(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
+    
+
+class AIGenSevenPointTwoPointOne(AIGenSevenPointTwo):
+    def __init__(self, name, generation='7.2.1'):
+        super().__init__(name, generation=generation)
+        self.title = 'sevenpointtwo'
+
+
+    def copy(self):
+        copy = AIGenSevenPointTwoPointOne(self.name)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
+
 if __name__ == "__main__":
     player = AIGenSevenPointOne('karen')
     player.load_new_hands()

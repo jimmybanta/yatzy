@@ -7,11 +7,11 @@ from numpy import average
 from aigame import AIGame, AITest
 from hand import YatzyHand
 from leaderboard import Leaderboard
-from ai_gen_7 import AIGenSevenPointOne, AIGenSevenPointZero
+from ai_gen_7 import AIGenSevenPointOne, AIGenSevenPointTwo, AIGenSevenPointTwoPointOne, AIGenSevenPointZero
 
 
 
-PLAYER = AIGenSevenPointOne('karen')
+PLAYER = AIGenSevenPointTwoPointOne('karen')
 
 
 class RLGame2(AIGame):
@@ -113,7 +113,7 @@ class RLTrainer2(AIGame):
             while None in player.scoresheet.values():
                 self.ai_train_turn(player)
             
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 print('Finished game {}'.format(i))
                 player.write_q()
         
@@ -224,8 +224,8 @@ class RLTest2(AITest):
 
 
 class RLGameData(RLGame2):
-    def __init__(self):
-        super().__init__(gen='7.1')
+    def __init__(self, gen=None):
+        super().__init__(gen=gen)
         self.yatzy_hands = 0
         self.total_rerolls = 0
 
@@ -346,6 +346,6 @@ class RLGameData(RLGame2):
 
 if __name__ == "__main__":
 
-    game = RLGameData()
+    game = RLGameData(gen='7.2.1')
     game.play(1000)
 
