@@ -1,3 +1,6 @@
 /__pycache__
 states.py
 states.txt
+hand_tests.py
+/.empty
+/.ipynb_checkpoints

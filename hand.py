@@ -150,7 +150,8 @@ class YatzyHand(list):
         
         for _ in range(len(indices)):
             final.append(int(D6()))
-
+        
+        print(final)
 
         return YatzyHand(final)
 
@@ -159,5 +160,6 @@ if __name__ == '__main__':
     
     
    
-    hand = YatzyHand([6,6,6,6,6])
-    print(hand.chance())
+    hand = YatzyHand()
+    print(hand)
+    hand = hand.reroll([0,2,4])
