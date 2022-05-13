@@ -151,8 +151,6 @@ class YatzyHand(list):
         for _ in range(len(indices)):
             final.append(int(D6()))
         
-        print(final)
-
         return YatzyHand(final)
 
 

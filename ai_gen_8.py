@@ -10,13 +10,13 @@ from hand import YatzyHand
 
 
 class AIGenEightPointZero(AIPlayer):
-    def __init__(self, name, generation='8.0'):
+    def __init__(self, name, generation='8.0.1'):
         super().__init__(name, generation=generation)
         self.name = name
 
         self.model = DQN()
 
-        self.model.load_state_dict(torch.load('dqn_models/gen_8.0_25kruns.pt'))
+        self.model.load_state_dict(torch.load('dqn_models/gen_8.0_1mruns.pt'))
 
         self.action_dict = create_action_dict(self)
 
@@ -37,7 +37,7 @@ class AIGenEightPointZero(AIPlayer):
 
     def copy(self):
         copy = AIGenEightPointZero(self.name)
-        copy.scoresheet = self.scoresheet
+        copy.scoresheet = self.scoresheet.copy()
 
         return copy
 
