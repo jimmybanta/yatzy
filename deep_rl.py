@@ -1,5 +1,3 @@
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,13 +6,26 @@ import torch.nn.functional as F
 import random
 from collections import deque, namedtuple
 import itertools as it
+import math
+import re
 
+from ai_gen_7 import AIGenSevenPointZero
+from player import Player
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
 
+MovesTransition = namedtuple('MoveTransition', 
+                            ('state', 'move', 'reward'))
+RerollTransition = namedtuple('RerollTransition',
+                            ('state', 'reroll', 'next_state'))
+IndicesTransition = namedtuple('IndicesTransition', 
+                            ('state', 'indices', 'next_state'))
+
 ## Objects
 
+
+## Gen 8.0
 class ReplayMemory(object):
     def __init__(self, capacity):
         self.memory = deque([], maxlen=capacity)
@@ -30,7 +41,6 @@ class ReplayMemory(object):
 
 
 class DQN(nn.Module):
-
     def __init__(self):
         super().__init__()
         self.softmax = nn.Softmax(dim=0)
@@ -44,7 +54,95 @@ class DQN(nn.Module):
         return self.softmax(self.layer3(x))
 
 
+## Gen 8.1
+
+class MovesDQN(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.softmax = nn.Softmax(dim=0)
+        self.layer1 = nn.Linear(20, 64)
+        self.layer2 = nn.Linear(64, 32)
+        self.layer3 = nn.Linear(32, 15)
+    
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+        return self.softmax(self.layer3(x))
+
+class IndicesDQN(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.softmax = nn.Softmax(dim=0)
+        self.layer1 = nn.Linear(20, 64)
+        self.layer2 = nn.Linear(64, 32)
+        self.layer3 = nn.Linear(32, 31)
+    
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+        return self.softmax(self.layer3(x))
+
+class RerollDQN(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.softmax = nn.Softmax(dim=0)
+        self.layer1 = nn.Linear(20, 64)
+        self.layer2 = nn.Linear(64, 32)
+        self.layer3 = nn.Linear(32, 2)
+    
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+        return self.softmax(self.layer3(x))
+
+class MovesReplayMemory(object):
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+    
+    def push(self, *args):
+        self.memory.append(MovesTransition(*args))
+    
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+    
+    def __len__(self):
+        return len(self.memory)
+
+
+class IndicesReplayMemory(object):
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+    
+    def push(self, *args):
+        self.memory.append(IndicesTransition(*args))
+    
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+    
+    def __len__(self):
+        return len(self.memory)
+
+class RerollReplayMemory(object):
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+    
+    def push(self, *args):
+        self.memory.append(RerollTransition(*args))
+    
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+    
+    def __len__(self):
+        return len(self.memory)
+
+
+
 ## Helper Functions
+
+# Gen 8.0
 
 def create_action_dict(player):
     actions = {}
@@ -79,7 +177,7 @@ def available_actions(scoresheet, reroll=False):
     return available
 
 
-def select_action(state, available_actions, episode_num):
+def select_action(state, available_actions, episode_num, eps_final, eps_initial, eps_decay, device, target_net):
     # returns a number between 1 and 46 that tells you what action to take
     sample = random.random()
     eps_threshold = eps_final + (eps_initial - eps_final) * math.exp(-1.0 * episode_num / eps_decay)
@@ -145,7 +243,7 @@ def check_state_end(state):
     return all([x != -1 for x in state])
 
 
-def optimize_model():
+def optimize_model(memory, bs, policy_net, device, target_net, opt):
     if len(memory) < bs:
         return
     transitions = memory.sample(bs)
@@ -172,3 +270,45 @@ def optimize_model():
     opt.zero_grad()
     loss.backward()
     opt.step()
+
+
+# Gen 8.1
+
+def create_action_dicts():
+    moves = {}
+    reroll = {}
+    indices = {}
+
+    player = AIGenSevenPointZero('karen')
+
+    for i, item in enumerate(player.moves):
+        moves[i] = item
+
+    for i, item in enumerate(player.reroll):
+        reroll[i] = item
+    
+    for i, item in enumerate(player.indices):
+        indices[i] = item
+
+    return moves, reroll, indices
+
+def available_moves(scoresheet):
+    available = {}
+    for i, (key, value) in enumerate(scoresheet.items()):
+        if value is not None:
+            available[i] = False
+        else:
+            available[i] = True
+    return available
+
+
+def available_rerolls():
+    return {0: True, 1: True}
+
+def available_indices():
+    final = {}
+    for i in range(1, 6):
+         for comb in it.combinations([0, 1, 2, 3, 4], i):
+            final.append(comb)
+    return final
+
