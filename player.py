@@ -5,9 +5,10 @@ import datetime
 from hand import YatzyHand
 
 class Player:
-    def __init__(self, name, ai=False, generation='human'):
+    def __init__(self, name='karen', ai=False, generation='human'):
         self.name = name
         self.ai = ai
+        self.generation = generation
         self.scoresheet = {
             'ones': None, 
             'twos': None, 
@@ -25,7 +26,6 @@ class Player:
             'chance': None, 
             'yatzy': None
             }
-        self.generation = generation
         
     def print_scoresheet(self):
         for category, score in self.scoresheet.items():
@@ -36,6 +36,10 @@ class Player:
 
     def update_scoresheet(self, category, score):
         self.scoresheet[category] = score
+
+    def clear_scoresheet(self):
+        for key in self.scoresheet:
+            self.scoresheet[key] = None
 
     def calculate_score(self):
         score = 0
@@ -51,12 +55,21 @@ class Player:
                 score += self.scoresheet[category]
         return score
 
-    def clear_scoresheet(self):
-        for key in self.scoresheet:
-            self.scoresheet[key] = None
+
 
 
 class AIPlayer(Player):
     def __init__(self, name, generation):
         super().__init__(name, ai=True, generation=generation)
 
+
+
+if __name__ == "__main__":
+
+    player = Player('karen')
+    
+    print('')
+    print('player.scoresheet: ')
+    print('')
+    print(player.scoresheet)
+    print('')

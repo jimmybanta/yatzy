@@ -1,4 +1,5 @@
-from tkinter import Y
+
+
 from dice import D6
 import random
 
@@ -90,13 +91,14 @@ class YatzyHand(list):
 
     def two_pair(self):
         dice = []
-        if list(self._sets.values()).count(2) == 2 or (list(self._sets.values()).count(2) == 1 and list(self._sets.values()).count(3) == 1):
+        if (list(self._sets.values()).count(2) == 2 or 
+            (list(self._sets.values()).count(2) == 1 and list(self._sets.values()).count(3) == 1)):
+
             for i in range(1,7):
                 if self._sets[i] >= 2:
                     dice.append(2 * i)
             return sum(dice)
-        else:
-            return 0
+        return 0
     
     def three_kind(self):
         for i in range(1,7):
@@ -114,14 +116,12 @@ class YatzyHand(list):
     def small_straight(self):
         if self == [1,2,3,4,5]:
             return 15
-        else:
-            return 0
+        return 0
 
     def large_straight(self):
         if self == [2,3,4,5,6]:
             return 20
-        else:
-            return 0
+        return 0
 
     def full_house(self):
         final = 0
@@ -156,8 +156,9 @@ class YatzyHand(list):
 
 if __name__ == '__main__':
     
-    
-   
     hand = YatzyHand()
-    print(hand)
-    hand = hand.reroll([0,2,4])
+    print('')
+    print('hand = {}'.format(hand))
+    print('')
+    print('hand.threes() = {}'.format(hand.threes()))
+    print('')

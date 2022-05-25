@@ -24,9 +24,6 @@ class Die:
 
     def __le__(self, other):
         return int(self) < other or int(self) == other
-
-    def __add__(self, other):
-        return int(self) + other
     
     def __str__(self):
         return f'{self.value}'

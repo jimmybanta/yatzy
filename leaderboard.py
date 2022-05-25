@@ -341,4 +341,4 @@ def analyze(gen):
 
 if __name__ == '__main__':
 
-    analyze('8.1')
+    analyze('human')

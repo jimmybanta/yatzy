@@ -12,48 +12,15 @@ class Game:
         self.used = []
         self.players = []
 
-    def human_turn(self, player):
-        hand = YatzyHand()
-
-        count = 0
-        print('')
-        print('Here is your hand: {}'.format(hand))
-        print('')
-        while count < 2:
-            reroll = input('Would you like to reroll? y/n   ')
-            if reroll.lower() == 'y':
-                print('')
-                values = [int(a) for a in input("List the indexes of the dice you'd like to reroll:  ").split(',')]
-                hand = hand.reroll(values)
-                print('')
-                print('Here is your new hand: {}'.format(hand))
-                print('')
-                count += 1
-            if reroll.lower() == 'n':
-                print('')
+    def game_loop(self):
+        self.quit = False
+        turns = 0
+        while turns < 15:
+            if self.quit == True:
                 break
-            if reroll == 'sheet':
-                player.print_scoresheet()
-
-        while True:
-            category = input('What category would you like to use?  ')
-            print('')
-
-            if category == 'sheet':
-                player.print_scoresheet()
-
-            elif category in player.scoresheet and category not in self.used:
-                player.scoresheet[category] = getattr(hand, category)()
-                player.print_scoresheet()
-                self.used.append(category)
-                break
-            
-            elif category == 'quit':
-                self.quit = True
-                break
-
-            else:
-                print('Invalid category! Try again.')
+            for player in self.players:
+                self.turn(player)
+            turns += 1
 
     def AIturn(self, player):
         hand = YatzyHand()
@@ -96,6 +63,7 @@ class Game:
 
         time.sleep(.5)
 
+
     def calculate_final_scores(self):
         final_scores = []
 
@@ -126,47 +94,89 @@ class Game:
                 print('')
 
 
-class SinglePlayerGame(Game):
+class HumanGame(Game):
+    def __init__(self):
+        super().__init__()
+        self.quit = False
+        self.gen = 'human'
+
     def play(self):
-        input('Welcome to Yatzy! Are you ready?   ')
+        input('Welcome to Yatzy! Hit enter to play...  ')
+        print('')
         name = input('What is your name?  ')
+        print('')
 
         player = Player(name)
-
         self.players.append(player)
 
         input("Ok {}! Let's begin! ".format(name))
-        self.quit = False
 
-        turns = 0
-        while turns < 15:
-            if self.quit == True:
-                break
-            self.human_turn(player)    
-            turns += 1
+        self.game_loop()
 
         final_score = self.calculate_final_scores()
-        print("Game over! Now here is your score...")
+        print("Game over! Now for the scores...")
         print('')
-        time.sleep(1)
         
         self.print_final_scores(final_score)
 
-        
-        leaderboard = Leaderboard()
-        leaderboard.load()
-        leaderboard.update(final_score)
-        leaderboard.print()
-        leaderboard.write()
+        leaderboard = Leaderboard(self.gen)
+        leaderboard.run(final_score)
 
         print('')
-
         print('Thanks for playing!')
         print('')
+
+    def turn(self, player):
+        hand = YatzyHand()
+
+        print('')
+        print('Here is your hand: {}'.format(hand))
+        print('')
+
+        rerolls = 0
+        while rerolls < 2:
+            reroll = input('Would you like to reroll? y/n   ')
+            if reroll.lower() == 'y':
+                print('')
+                values = [int(a) for a in input("List the indices of the dice you'd like to reroll:  ").split(',')]
+                hand = hand.reroll(values)
+                print('')
+                print('Here is your new hand: {}'.format(hand))
+                print('')
+                rerolls += 1
+            if reroll.lower() == 'n':
+                print('')
+                break
+            if reroll == 'sheet':
+                player.print_scoresheet()
+
+        while True:
+            category = input('What category would you like to use?  ')
+            print('')
+
+            if category == 'sheet':
+                player.print_scoresheet()
+
+            elif category in player.scoresheet and category not in self.used:
+                player.scoresheet[category] = getattr(hand, category)()
+                player.print_scoresheet()
+                self.used.append(category)
+                break
+            
+            elif category == 'quit':
+                self.quit = True
+                break
+
+            else:
+                print('Invalid category! Try again.')
+                print('')
+
+
+
 
 
 if __name__ == '__main__':
 
-    game = SinglePlayerGame()
+    game = HumanGame()
 
     game.play()
