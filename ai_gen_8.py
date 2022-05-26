@@ -4,7 +4,7 @@ import torch
 
 
 from player import AIPlayer
-from deep_rl import DQN, MovesDQN, RerollDQN, IndicesDQN, create_state, available_actions, create_action_dict
+from deep_rl import DQN, create_state, available_actions, create_action_dict
 from hand import YatzyHand
 from ai_gen_7 import AIGenSevenPointZero
 
@@ -15,7 +15,7 @@ class AIGenEightPointZero(AIPlayer):
         super().__init__(name, generation=generation)
         self.name = name
 
-        self.model = DQN()
+        self.model = DQN(46)
         self.model.load_state_dict(torch.load('dqn_models/8.0/gen_8.0_1mruns.pt'))
         self.model.eval()
 
@@ -48,16 +48,21 @@ class AIGenEightPointOne(AIPlayer):
     def __init__(self, name, number, generation='8.1.1'):
         super().__init__(name, generation=generation)
         self.name = name
+        self.number = number
 
-        self.moves_dqn = MovesDQN()
-        self.reroll_dqn = RerollDQN()
-        self.indices_dqn = IndicesDQN()
+        self.moves_dqn = DQN(15)
+        self.reroll_dqn = DQN(2)
+        self.indices_dqn = DQN(31)
         self.moves_dqn.eval()
         self.reroll_dqn.eval()
         self.indices_dqn.eval()
 
-        self.path = f'dqn_models/8.1test3/{number}/'
+        self.moves_dict, self.reroll_dict, self.indices_dict = create_action_dicts()
 
+        self.path = f'dqn_models/8.1test3/{self.number}/'
+
+    
+    def load_dqn(self):
         if exists(f'{self.path}moves.pt'):
             #print(self.path)
             self.moves_dqn.load_state_dict(torch.load(f'{self.path}moves.pt'))
@@ -68,47 +73,50 @@ class AIGenEightPointOne(AIPlayer):
 
 
 
-        self.moves_dict, self.reroll_dict, self.indices_dict = create_action_dicts()
-
-
-    def choose_move(self, hand):
+    def choose_move(self, hand, test=False):
         state = create_state(self.scoresheet, hand)
-        #print(state)
+        if test:
+            print(state)
         options = available_moves(self.scoresheet)
 
-        #print('')
-        #print(self.scoresheet)
-        #print('')
+        if test:
+            print('')
+            print(self.scoresheet)
+            print('')
 
         with torch.no_grad():
             results = self.moves_dqn(state)
-            #self.print_moves_results(results)
-            #print('')
+            if test:
+                self.print_moves_results(results)
+                print('')
             for i in range(15):
                 if options[i] == False:
                     results[i] = 0
             return self.moves_dict[torch.argmax(results).view(1).item()]
 
 
-    def choose_reroll(self, hand):
+    def choose_reroll(self, hand, test=False):
         state = create_state(self.scoresheet, hand)
 
         with torch.no_grad():
             results = self.reroll_dqn(state)
-            #print(results)
+            if test:
+                print(results)
             return self.reroll_dict[torch.argmax(results).view(1).item()]
 
 
-    def choose_indices(self, hand):
+    def choose_indices(self, hand, test=False):
         state = create_state(self.scoresheet, hand)
 
         with torch.no_grad():
             results = self.indices_dqn(state)
+            if test:
+                print(results)
             return self.indices_dict[torch.argmax(results).view(1).item()]
 
 
     def copy(self):
-        copy = AIGenEightPointOne(self.name, 1)
+        copy = AIGenEightPointOne(self.name, self.number)
         copy.scoresheet = self.scoresheet.copy()
 
         return copy
@@ -119,6 +127,21 @@ class AIGenEightPointOne(AIPlayer):
             d[key] = results[i].item()
         
         print(sorted(d.items(), key=lambda x:x[1], reverse=True))
+
+
+class AIGenEightPointTwo(AIGenEightPointOne):
+    def __init__(self, name, number, generation='8.2.1'):
+        super().__init__(name, number, generation=generation)
+
+        self.path = f'dqn_models/8.2test0/{self.number}/'
+
+
+    def copy(self):
+        copy = AIGenEightPointTwo(self.name, self.number)
+        copy.scoresheet = self.scoresheet.copy()
+
+        return copy
+
 
 
 

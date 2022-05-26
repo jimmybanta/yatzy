@@ -1,6 +1,6 @@
 
 
-from ai_gen_8 import AIGenEightPointOne
+from ai_gen_8 import AIGenEightPointOne, AIGenEightPointTwo
 from deeprlgame import DeepRLTest
 from hand import YatzyHand
 from leaderboard import Leaderboard
@@ -8,7 +8,7 @@ from rlgame import RLGame
 
 import random
 
-PLAYER = AIGenEightPointOne('karen', '1')
+PLAYER = AIGenEightPointTwo('karen', 1)
 
 
 
@@ -22,6 +22,7 @@ class DeepRLGame3DQN(RLGame):
         self.make_name_lists()
 
         player = PLAYER 
+        player.load_dqn()
 
         for i in range(num):
             player.clear_scoresheet()
@@ -73,30 +74,13 @@ class DeepRLGame3DQN(RLGame):
 
         player.update_scoresheet(move, score)
 
-    
-
-    def evaluate(self, num):
-
-        final_scores = []
-
-        player = PLAYER 
-
-        for i in range(num):
-            player.clear_scoresheet()
-
-            turns = 0
-            while turns < 15:
-                self.ai_turn(player)
-                turns += 1
-            final_scores.append(player.calculate_score())
-        
-        return final_scores
 
 
 class DeepRLTest3DQN(DeepRLTest):
     def __init__(self):
         super().__init__(gen='Test')
         self.player = PLAYER
+        self.player.load_dqn()
 
     def ai_turn(self, player):
         hand = YatzyHand()
@@ -108,13 +92,13 @@ class DeepRLTest3DQN(DeepRLTest):
         rerolls = 0
         while rerolls < 2:
             
-            reroll = player.choose_reroll(hand)
+            reroll = player.choose_reroll(hand, test=True)
 
             print('reroll: ', reroll)
 
             if reroll == 'True':
                 rerolls += 1
-                indices = player.choose_indices(hand)
+                indices = player.choose_indices(hand, test=True)
 
                 print('')
                 input('Rerolling indices {}'.format(indices))
@@ -126,7 +110,7 @@ class DeepRLTest3DQN(DeepRLTest):
                 print('')
                 break
 
-        move = player.choose_move(hand)
+        move = player.choose_move(hand, test=True)
 
         input('Hand: {}'.format(hand))
         input('Action decided: {}'.format(move))
@@ -141,5 +125,5 @@ class DeepRLTest3DQN(DeepRLTest):
 
 
 if __name__ == '__main__':
-    game = DeepRLGame3DQN('8.1.1')
+    game = DeepRLGame3DQN('8.2.1')
     game.play(10000)

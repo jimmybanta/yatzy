@@ -41,102 +41,35 @@ class ReplayMemory(object):
 
 
 class DQN(nn.Module):
-    def __init__(self):
+    def __init__(self, output):
         super().__init__()
-        self.softmax = nn.Softmax(dim=0)
         self.layer1 = nn.Linear(20, 64)
         self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 46)
+        self.layer3 = nn.Linear(32, output)
     
     def forward(self, x):
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
-        return self.softmax(self.layer3(x))
+        return self.layer3(x)
 
 
 ## Gen 8.1
 
-class MovesDQN(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.softmax = nn.Softmax(dim=0)
-        self.layer1 = nn.Linear(20, 64)
-        self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 15)
-    
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = F.relu(self.layer2(x))
-        return self.softmax(self.layer3(x))
-
-class IndicesDQN(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.softmax = nn.Softmax(dim=0)
-        self.layer1 = nn.Linear(20, 64)
-        self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 31)
-    
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = F.relu(self.layer2(x))
-        return self.softmax(self.layer3(x))
-
-class RerollDQN(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.softmax = nn.Softmax(dim=0)
-        self.layer1 = nn.Linear(20, 64)
-        self.layer2 = nn.Linear(64, 32)
-        self.layer3 = nn.Linear(32, 2)
-    
-    def forward(self, x):
-        x = F.relu(self.layer1(x))
-        x = F.relu(self.layer2(x))
-        return self.softmax(self.layer3(x))
-
-class MovesReplayMemory(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
-    
+class MovesReplayMemory(ReplayMemory):
     def push(self, *args):
         self.memory.append(MovesTransition(*args))
     
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
-    
-    def __len__(self):
-        return len(self.memory)
 
 
-class IndicesReplayMemory(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
-    
+class IndicesReplayMemory(ReplayMemory):
     def push(self, *args):
         self.memory.append(IndicesTransition(*args))
-    
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
-    
-    def __len__(self):
-        return len(self.memory)
 
-class RerollReplayMemory(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
-    
+
+class RerollReplayMemory(ReplayMemory):  
     def push(self, *args):
         self.memory.append(RerollTransition(*args))
-    
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
-    
-    def __len__(self):
-        return len(self.memory)
+
 
 
 
@@ -197,7 +130,7 @@ def create_state(scoresheet, hand):
 
     for key, value in scoresheet.items():
         if not isinstance(value, int):
-            s.append(-1)
+            s.append(0)
         else:
             s.append(value)
 
@@ -222,7 +155,7 @@ def first_turn(scoresheet):
 
 def check_state_end(state):
     state = list(state)
-    return all([x != -1 for x in state])
+    return all([x != 0 for x in state])
 
 
 def optimize_model(memory, bs, policy_net, device, target_net, opt):
