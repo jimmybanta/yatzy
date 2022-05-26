@@ -79,11 +79,12 @@ class DeepRLGame(RLGame):
 
 
 class DeepRLTest(RLTest):
-    def __init__(self):
+    def __init__(self, gen='Test'):
         super().__init__(gen='Test')
+        self.player = PLAYER
 
     def play(self):
-        player = PLAYER
+        player = self.player
         self.players.append(player)
 
         input("Ok {}! Let's begin! ".format(player.name))
@@ -151,6 +152,7 @@ class DeepRLTest(RLTest):
 
 
 if __name__ == "__main__":
+
 
     game = DeepRLGame('8.0.1')
     game.play(10000)

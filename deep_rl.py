@@ -195,32 +195,14 @@ def select_action(state, available_actions, episode_num, eps_final, eps_initial,
 def create_state(scoresheet, hand):
     s = []
 
-    divisors = {
-                'ones': 5, 
-                'twos': 10, 
-                'threes': 15, 
-                'fours': 20, 
-                'fives': 25, 
-                'sixes': 30, 
-                'one_pair': 12, 
-                'two_pair': 22, 
-                'three_kind': 18, 
-                'four_kind': 24,
-                'small_straight': 15,
-                'large_straight': 20, 
-                'full_house': 28, 
-                'chance': 30, 
-                'yatzy': 50
-            }
-
     for key, value in scoresheet.items():
         if not isinstance(value, int):
             s.append(-1)
         else:
-            s.append(value / divisors[key])
+            s.append(value)
 
     for die in hand:
-        s.append(int(die) / 6)
+        s.append(float(die) * 10)
 
     return torch.tensor(s)
 

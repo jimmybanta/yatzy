@@ -1,13 +1,14 @@
 
 
 from ai_gen_8 import AIGenEightPointOne
+from deeprlgame import DeepRLTest
 from hand import YatzyHand
 from leaderboard import Leaderboard
 from rlgame import RLGame
 
 import random
 
-PLAYER = AIGenEightPointOne('karen')
+PLAYER = AIGenEightPointOne('karen', '1')
 
 
 
@@ -92,6 +93,53 @@ class DeepRLGame3DQN(RLGame):
         return final_scores
 
 
+class DeepRLTest3DQN(DeepRLTest):
+    def __init__(self):
+        super().__init__(gen='Test')
+        self.player = PLAYER
+
+    def ai_turn(self, player):
+        hand = YatzyHand()
+
+        print('')
+        input('Hand: {}'.format(hand))
+        print('')
+
+        rerolls = 0
+        while rerolls < 2:
+            
+            reroll = player.choose_reroll(hand)
+
+            print('reroll: ', reroll)
+
+            if reroll == 'True':
+                rerolls += 1
+                indices = player.choose_indices(hand)
+
+                print('')
+                input('Rerolling indices {}'.format(indices))
+                print('')
+
+                hand = hand.reroll(indices)
+            else:
+                print('Not rerolling')
+                print('')
+                break
+
+        move = player.choose_move(hand)
+
+        input('Hand: {}'.format(hand))
+        input('Action decided: {}'.format(move))
+        print('')
+
+        score = getattr(hand, move)()
+
+        player.update_scoresheet(move, score)
+
+
+
+
+
 if __name__ == '__main__':
-    game = DeepRLGame3DQN('8.1')
+    game = DeepRLGame3DQN('8.1.1')
     game.play(10000)

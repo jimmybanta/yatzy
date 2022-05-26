@@ -5,7 +5,10 @@ class Die:
         self.value = value or random.randint(1, sides)
 
     def __int__(self):
-        return self.value
+        return int(self.value)
+    
+    def __float__(self):
+        return float(self.value)
     
     def __eq__(self, other):
         return int(self) == other
