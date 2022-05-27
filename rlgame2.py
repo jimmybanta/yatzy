@@ -4,7 +4,7 @@ import time
 from numpy import average
 
 
-from aigame import AIGame, AITest
+from game_ai import AIGame, AITest
 from hand import YatzyHand
 from leaderboard import Leaderboard
 from ai_gen_7 import AIGenSevenPointOne, AIGenSevenPointTwo, AIGenSevenPointTwoPointOne, AIGenSevenPointZero

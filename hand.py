@@ -1,26 +1,27 @@
 
 
 from dice import D6
-import random
 
 class YatzyHand(list):
-    def __init__(self, list=None):
+    def __init__(self, nums=None):
         super().__init__()
 
-        if list and len(list) == 5:
-            for num in list:
-                self.append(D6(value=num))
-            self.sort()
-        elif list and len(list) < 5:
-            for num in list:
-                self.append(D6(value=num))
-            for _ in range(5 - len(list)):
-                self.append(D6())
-            self.sort()
+        if nums:
+            length = len(nums)
+            if length == 5:
+                for num in nums:
+                    self.append(D6(value=num))
+            else:
+                for num in nums:
+                    self.append(D6(value=num))
+                for _ in range(5 - length):
+                    self.append(D6())
+
         else:
             for _ in range(5):
                 self.append(D6())
-            self.sort()
+            
+        self.sort()
 
     def _by_value(self, value):
         dice = []
@@ -142,23 +143,8 @@ class YatzyHand(list):
         return 0
         
     def reroll(self, indices):
-        final = []
+        non_rerolled = [int(self[i]) for i in range(5) if i not in indices]
+        rerolled = [int(D6()) for _ in range(len(indices))]
 
-        for i in range(5):
-            if i not in indices:
-                final.append(int(self[i]))
-        
-        for _ in range(len(indices)):
-            final.append(int(D6()))
-        
-        return YatzyHand(final)
+        return YatzyHand(non_rerolled + rerolled)
 
-
-if __name__ == '__main__':
-    
-    hand = YatzyHand()
-    print('')
-    print('hand = {}'.format(hand))
-    print('')
-    print('hand.threes() = {}'.format(hand.threes()))
-    print('')

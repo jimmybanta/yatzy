@@ -1,10 +1,14 @@
+'''AIGame runs a certain number of game simulations, and returns results and stats.
+    AITest allows you to run one game and see how the AI plays.'''
+
+
+## Still to do: finish making run_leaderboard and run_analysis, update AITest
+
 import csv
-import time
 import random
 import datetime
 
 from numpy import average
-
 
 
 from ai_gen_4 import AI_gen_fourpointone, AI_gen_fourpointthree, AI_gen_fourpointzero, AI_gen_fourpointtwo
@@ -20,51 +24,54 @@ from game import Game
 
 
 class AIGame(Game):
-    def __init__(self, gen):
+    '''Allows for running 'games' games, for a given AI.'''
+    def __init__(self, games, player):
         super().__init__()
+        self.player = player
+        self.games = games
+
         self.first_names = []
         self.last_names = []
-        self.gen = gen
 
-    def make_name_lists(self):
+
+    def load_names(self):
+        '''Loads the names into the given name lists.'''
         with open('names.csv', 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 self.first_names.append(row['first_name'])
                 self.last_names.append(row['last_name'])
 
-    def play(self, num):
 
-        input('Welcome to Yatzy! Are you ready?   ')
-        start = datetime.datetime.now()
+    def get_name(self):
+        '''Returns a random name.'''
+        first_name = random.choice(self.first_names)
+        last_name = random.choice(self.last_names)
+        return first_name + last_name
 
-        self.make_name_lists()
 
-        for _ in range(num):
-            first_name = random.choice(self.first_names)
-            last_name = random.choice(self.last_names)
-            name = first_name + ' ' + last_name
-            self.players.append(ai_gen_sixpointzero(name))
+    def play(self):
 
+        self.load_names()
+
+        for i in range(self.games):
+            self.player.name = self.get_name()
+            self.player.reset_scoresheet()
+
+            self.game_loop()
+
+            self.final_scores.append(self.calculate_final_score())
+
+            if i % 1000 == 0:
+                print('Game {} complete'.format(i))
+        
+        self.run_leaderboard()
+        self.run_analysis()
+            
+
+        
     
-        turns = 0
-        while turns < 15:
-            for player in self.players:
-                self.AIturn_with_override(player)
-            turns += 1
-            print('Turn {} complete'.format(turns))
-
-        final_scores = self.calculate_final_scores()
-        end = datetime.datetime.now()
-        print('Time elapsed: {}'.format(end - start))
-        print("Game over! Now for the leaderboard...")
-
-        leaderboard = Leaderboard(self.gen)
-        leaderboard.run(final_scores)
-        print('')
-        print('')
-        
-        
+    
     def AIturn_without_override(self, player):
         hand = YatzyHand()
 
@@ -83,7 +90,9 @@ class AIGame(Game):
 
         player.update_scoresheet(play, score)
 
-    def AIturn_with_override(self, player):
+
+
+    def turn(self, player, override=False):
         hand = YatzyHand()
         play = None
 
@@ -108,6 +117,10 @@ class AIGame(Game):
         score = getattr(hand, play)()
 
         player.update_scoresheet(play, score)
+
+
+
+
 
 class AIGame_data(AIGame):
     def __init__(self):

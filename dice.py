@@ -1,6 +1,7 @@
 import random
 
 class Die:
+    '''A die with 'sides' number of sides. Optionally, can set its value with 'value'.'''
     def __init__(self, sides, value=0):
         self.value = value or random.randint(1, sides)
 
@@ -36,5 +37,6 @@ class Die:
 
 
 class D6(Die):
+    '''D6 -- a six-sided die. Can optionally set its value with 'value'.'''
     def __init__(self, value=0):
         super().__init__(6, value=value)

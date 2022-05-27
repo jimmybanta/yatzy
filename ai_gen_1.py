@@ -1,51 +1,48 @@
+
 import random
 
 from player import AIPlayer
 
-# 50% chance of choosing to reroll, 50% chance of rerolling any one die, random choice of play
-class AI_gen_onepointzero(AIPlayer):
-    def __init__(self, name, generation='1.0'):
-        super().__init__(name, generation=generation)
 
-    def choose_play(self):
-        options = []
-        for item in self.scoresheet:
-            if self.scoresheet[item] == None:
-                options.append(item)
-        return random.choice(options)
+class AIGenOnePointZero(AIPlayer):
+    '''50% chance of choosing to reroll, 50% chance of rerolling any one die, random choice of move'''
+    def __init__(self, name):
+        super().__init__(name, generation='1.0')
+
+    def choose_move(self):
+        return random.choice([item for item in self.scoresheet if self.scoresheet[item] == None])
 
     def choose_reroll(self):
-        value = random.random()
-        if value < .5:
-            return True
-        return False
+        return True if random.random() < 0.5 else False
 
-    def choose_nums(self):
-        indices = []
-        for i in range(5):
-            value = random.random()
-            if value < .5:
-                indices.append(i)
+    def choose_indices(self):
+        return[i for i in range(5) if random.random() < 0.5]
 
-        return indices
 
-# never rerolls, random choice of play
-class AI_gen_onepointone(AI_gen_onepointzero):
-    def __init__(self, name, generation='1.1'):
-        super().__init__(name, generation=generation)
+class AIGenOnePointOne(AIGenOnePointZero):
+    '''Never rerolls, random choice of move'''
+    def __init__(self, name):
+        super().__init__(name, generation='1.1')
 
     def choose_reroll(self):
         return False
 
-# always rerolls, random choice of play
-class AI_gen_onepointtwo(AI_gen_onepointzero):
-    def __init__(self, name, generation='1.2'):
-        super().__init__(name, generation=generation)
 
+class AIGenOnePointTwo(AIGenOnePointZero):
+    '''Always rerolls, 50% chance of rerolling any die, random choice of move'''
+    def __init__(self, name):
+        super().__init__(name, generation='1.2')
 
     def choose_reroll(self):
         return True
 
-    
-if __name__ == '__main__':
-    pass
+
+
+def reroll(self, nums):
+    rerolled = []
+    for num in nums:
+        for die in self:
+            if die == num and die not in rerolled:
+                die.value = random.randint(1,6)
+                rerolled.append(die)
+                break
