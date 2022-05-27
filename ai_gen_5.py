@@ -1,44 +1,37 @@
 
 import random
 
+from ai_gen_3 import AIGenThreePointTwo
 from ai_gen_4 import AI_gen_fourpointthree
 
+## need to keep refactoring
 
-class AI_gen_fivepointzero(AI_gen_fourpointthree):
+class AIGenFivePointZero(AIGenThreePointTwo):
     def __init__(self, name, generation='5.0'):
         super().__init__(name, generation=generation)
 
-    def choose_nums(self, hand):
-        indices = []
+    def reroll_for_topsheet(self, hand, value):
         plays = ['sixes', 'fives', 'fours', 'threes', 'twos', 'ones']
+        indices = []
 
         for i, play in enumerate(plays):
             num = 6 - i
-            if hand.count(num) >= 2 and self.scoresheet[play] == None:
+            if hand.count(num) >= value and play in self.options:
                 for i, die in enumerate(hand):
                     if die != num:
                         indices.append(i)
                 break
-        if indices:
-            return indices
-        
-        if hand.four_kind():
-            if hand[0] != hand[1]:
-                return [0]
-            if hand[4] != hand[3]:
-                return [4]
 
-        for i,die in enumerate(hand):
-            if die.value in [1,2,3]:
-                indices.append(i)
-        if indices:
-            return indices
-        else:
-            for i in range(5):
-                value = random.random()
-                if value < .5:
-                    indices.append(i)
-            return indices
+        return indices if indices else False
+
+
+
+
+    def choose_nums(self, hand):
+        top = self.reroll_for_topsheet(hand, 2)
+
+        return super().choose_nums(hand) if not top else top
+        
 
     def choose_play(self, hand):
         options = []
@@ -80,7 +73,7 @@ class AI_gen_fivepointzero(AI_gen_fourpointthree):
 
 
 
-class AI_gen_fivepointone(AI_gen_fivepointzero):
+class AIGenFivePointOne(AIGenFivePointZero):
     def __init__(self, name, generation='5.1'):
         super().__init__(name, generation=generation)
     
@@ -132,47 +125,22 @@ class AI_gen_fivepointone(AI_gen_fivepointzero):
             return random.choice(options_upper)
 
     def choose_nums(self, hand):
-        indices = []
-        plays = ['sixes', 'fives', 'fours', 'threes', 'twos', 'ones']
-
-        for i, play in enumerate(plays):
-            num = 6 - i
-            if hand.count(num) >= 2 and self.scoresheet[play] == None:
-                for i, die in enumerate(hand):
-                    if die != num:
-                        indices.append(i)
-                break
-        if indices:
-            return indices
+        top_two = self.reroll_for_topsheet(hand, 2)
+        if top_two:
+            return top_two
         
-        if hand.four_kind():
-            if hand[0] != hand[1]:
-                return [0]
-            if hand[4] != hand[3]:
-                return [4]
+        if hand.four_kind() and not hand.yatzy():
+            return [0] if hand[0] != hand[1] else [4]
         
-        for i, play in enumerate(plays):
-            num = 6 - i
-            if hand.count(num) >= 1 and self.scoresheet[play] == None:
-                for i, die in enumerate(hand):
-                    if die != num:
-                        indices.append(i)
-                break
-        if indices:
-            return indices
+        top_one = self.reroll_for_topsheet(hand, 1)
+        if top_one:
+            return top_one
 
-        for i,die in enumerate(hand):
-            if die.value in [1,2,3]:
-                indices.append(i)
-        if indices:
-            return indices
-        else:
-            for i in range(5):
-                value = random.random()
-                if value < .5:
-                    indices.append(i)
-            return indices
+        indices_lower = [i for i, die in enumerate(hand) if die.value in [1,2,3]]
+        
+        indices_upper = [i for i in range(5) if random.random() < self.prob]
 
+        return indices_lower if indices_lower else indices_upper
 
     def override(self, hand):
         options = []
@@ -217,7 +185,7 @@ class AI_gen_fivepointone(AI_gen_fivepointzero):
             return False, 'bla'
 
 
-class AI_gen_fivepointtwo(AI_gen_fivepointzero):
+class AIGenFivePointTwo(AIGenFivePointZero):
     def __init__(self, name, generation='5.2'):
         super().__init__(name, generation=generation)
 
@@ -357,3 +325,7 @@ class AI_gen_fivepointtwo(AI_gen_fivepointzero):
                 if value < .5:
                     indices.append(i)
             return indices
+
+
+if __name__ == '__main__':
+    pass

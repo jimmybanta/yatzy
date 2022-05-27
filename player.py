@@ -28,6 +28,23 @@ class Player:
             'yatzy': None
             }
     
+    @property
+    def options(self):
+        '''Returns all categories that are available. '''
+        return [category for category in self.scoresheet if self.scoresheet[category] is None]
+    
+    @property
+    def top_options(self):
+        '''REturns the categories available in the top-sheet.'''
+        top = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes']
+        return [category for category in top if self.scoresheet[category] is None]
+    
+    @property
+    def bottom_options(self):
+        '''Returns the categories available in the bottom-sheet'''
+        bottom = ['one_pair', 'two_pair', 'three_kind', 'four_kind', 
+                    'small_straight', 'large_straight', 'full_house', 'chance', 'yatzy']
+        return [category for category in bottom if self.scoresheet[category] is None]
 
     def print_scoresheet(self):
         '''Prints out the scoresheet.'''
@@ -123,3 +140,16 @@ class AIPlayer(Player):
     def turn(self):
         '''An individual turn, for an AI.'''
 
+
+
+if __name__ == '__main__':
+    player = Player('karen')
+
+    for c in player.scoresheet:
+        if random.random() < 0.5:
+            player.scoresheet[c] = 1
+    
+    print(player.scoresheet)
+    print(player.options)
+    print(player.top_options)
+    print(player.bottom_options)

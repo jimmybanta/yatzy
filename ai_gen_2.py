@@ -1,44 +1,26 @@
 import random
 
-
 from player import AIPlayer
+from ai_gen_1 import AIGenOnePointZero
+from hand import YatzyHand
 
 
-# first gen: 50% probability of reroll, 50% probability to reroll each die, choose the max score play for each turn
-class AI_gen_twopointzero(AIPlayer):
+class AIGenTwoPointZero(AIGenOnePointZero):
+    '''Chooses the max scoring move; 50% probability of rerolling, 50% probability of rerolling any one die.'''
     def __init__(self, name, generation='2.0'):
         super().__init__(name, generation=generation)
         
-    def choose_play(self, hand):
-        scores = {}
-        plays = []
-        for column in self.scoresheet:
-            if self.scoresheet[column] != None:
-                continue
-            scores[column] = getattr(hand, column)()
-        m = max(scores.values())
-        for play, score in scores.items():
-            if score == m:
-                plays.append(play)
-        return random.choice(plays)
+    def choose_move(self, hand):
+        '''Returns the max scoring move.
+            If there are multiple that score the max, it returns one of them at random.'''
+        options = {key: getattr(hand, key)() for key, value in self.scoresheet.items() if value is None}
+        final = list(options.items())
+        random.shuffle(final)
+        print(final)
+        return max(final, key=lambda x:x[1])[0]
+        
 
-    def choose_reroll(self):
-        prob = .5
-        if random.random() < prob:
-            return True
-        else:
-            return False
-
-    def choose_nums(self):
-        indices = []
-        for i in range(5):
-            value = random.random()
-            if value < .5:
-                indices.append(i)
-
-        return indices
-
-class AI_gen_twopointone(AI_gen_twopointzero):
+class AIGenTwoPointOne(AIGenTwoPointZero):
     def __init__(self, name, generation='2.1'):
         super().__init__(name, generation=generation)
 
@@ -48,5 +30,15 @@ class AI_gen_twopointone(AI_gen_twopointzero):
     def choose_nums(self):
         return [0,1,2,3,4]
 
+
+
+
+
 if __name__ == '__main__':
-    pass
+    player = AIGenTwoPointZero('karen')
+    player.scoresheet =  {'ones': None, 'twos': 1, 'threes': None, 'fours': 1, 'fives': 1, 'sixes': None, 
+                            'one_pair': None, 'two_pair': None, 'three_kind': None, 'four_kind': 1, 'small_straight': None, 
+                            'large_straight': 1, 'full_house': 1, 'chance': 1, 'yatzy': None}
+    hand = YatzyHand([1,2,3,6,6])
+    print(hand)
+    print(player.choose_play(hand))

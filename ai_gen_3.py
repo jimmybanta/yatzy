@@ -1,68 +1,46 @@
 import random
 
-from ai_gen_2 import AI_gen_twopointzero
+from ai_gen_2 import AIGenTwoPointZero
+from hand import YatzyHand
 
-
-class AI_gen_threepointzero(AI_gen_twopointzero):
+class AIGenThreePointZero(AIGenTwoPointZero):
     def __init__(self, name, generation='3.0'):
         super().__init__(name, generation=generation)
+        self.override_values = {'yatzy': 50, 'large_straight': 20, 'small_straight': 15, 'full_house': 22,
+                'four_kind': 20, 'three_kind': 15, 'two_pair': 18, 'chance': 24}
+        self.override_values = {}
 
     def override(self, hand):
-        options = []
-        for column in self.scoresheet:
-            if self.scoresheet[column] == None:
-                options.append(column)
+        print(self.override_values)
+        for move in self.override_values:
+            if getattr(hand, move)() >= self.override_values[move] and move in self.options:
+                return move
+        return False
 
-        if hand.yatzy() == 50 and 'yatzy' in options:
-            return True, 'yatzy'
-        elif hand.large_straight() == 20 and 'large_straight' in options:
-            return True, 'large_straight'
-        elif hand.small_straight() == 15 and 'small_straight' in options:
-            return True, 'small_straight'
-        elif hand.full_house() >= 22 and 'full_house' in options:
-            return True, 'full_house'
-        elif hand.four_kind() >= 20 and 'four_kind' in options:
-            return True, 'four_kind'
-        elif hand.three_kind() >= 15 and 'three_kind' in options:
-            return True, 'three_kind'
-        elif hand.two_pair() >= 18 and 'two_pair' in options:
-            return True, 'two_pair'
-        elif hand.chance() >= 24 and 'chance' in options:
-            return True, 'chance'
-        else:
-            return False, 'bla'
 
-class AI_gen_threepointone(AI_gen_threepointzero):
+class AIGenThreePointOne(AIGenThreePointZero):
     def __init__(self, name, generation='3.1'):
         super().__init__(name, generation=generation)
 
     def choose_reroll(self):
         return True
 
-class AI_gen_threepointtwo(AI_gen_threepointone):
+class AIGenThreePointTwo(AIGenThreePointOne):
     def __init__(self, name, generation='3.2'):
         super().__init__(name, generation=generation)
+        self.prob = 0.5
     
-    def choose_nums(self,hand):
-        indices_lower = []
-        indices_upper = []
-        for i,die in enumerate(hand):
-            if die.value in [1,2,3]:
-                indices_lower.append(i)
-        if indices_lower:
-            return indices_lower
-        else:
-            for i in range(5):
-                value = random.random()
-                if value < .5:
-                    indices_upper.append(i)
-            return indices_upper
+    def choose_nums(self, hand):
+        indices_lower = [i for i, die in enumerate(hand) if die.value in [1,2,3]]
+        
+        indices_upper = [i for i in range(5) if random.random() < self.prob]
 
-
-
-
+        return indices_lower if indices_lower else indices_upper
 
 
 
 if __name__ == '__main__':
-    pass
+    player = AIGenThreePointTwo('karen')
+    hand = YatzyHand([1,2,3,4,5])
+    print(hand)
+    print(player.choose_nums(hand))
