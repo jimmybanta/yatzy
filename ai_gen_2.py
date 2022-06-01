@@ -16,18 +16,18 @@ class AIGenTwoPointZero(AIGenOnePointZero):
         options = {key: getattr(hand, key)() for key, value in self.scoresheet.items() if value is None}
         final = list(options.items())
         random.shuffle(final)
-        print(final)
         return max(final, key=lambda x:x[1])[0]
         
 
 class AIGenTwoPointOne(AIGenTwoPointZero):
+    '''Chooses the max scoring move; Always rerolls all of the dice.'''
     def __init__(self, name, generation='2.1'):
         super().__init__(name, generation=generation)
 
-    def choose_reroll(self):
+    def choose_reroll(self, hand=False):
         return True
     
-    def choose_nums(self):
+    def choose_indices(self, hand=False):
         return [0,1,2,3,4]
 
 

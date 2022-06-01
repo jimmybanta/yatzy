@@ -139,6 +139,53 @@ class AIPlayer(Player):
 
     def turn(self):
         '''An individual turn, for an AI.'''
+        hand = YatzyHand()
+
+        rerolls = 0
+        while rerolls < 2:
+            if self.choose_reroll(hand):
+                rerolls += 1
+                indices = self.choose_indices(hand)
+                hand = hand.reroll(indices)
+            else:
+                break
+
+        move = self.choose_move(hand)
+        score = getattr(hand, move)()
+
+        self.update_scoresheet(move, score)
+    
+    def test_turn(self):
+        '''A turn that displays info, for testing purposes.'''
+        hand = YatzyHand()
+        
+        rerolls = 0
+        while rerolls < 2:
+            print('')
+            input('Hand: {}'.format(hand))
+            print('')
+
+            if self.choose_reroll(hand):
+                rerolls += 1
+                indices = self.choose_indices(hand)
+                print('Rerolling {}'.format(indices))
+                hand = hand.reroll(indices)
+            else:
+                break
+
+        
+        print('Final hand: {}'.format(hand))
+        print('')
+
+        move = self.choose_move(hand)
+        input('Move: {}'.format(move))
+        print('')
+        score = getattr(hand, move)()
+
+        self.update_scoresheet(move, score)
+        self.print_scoresheet()
+
+
 
 
 

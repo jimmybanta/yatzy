@@ -4,14 +4,13 @@ import random
 
 from hand import YatzyHand
 from player import Player
-from leaderboard import Leaderboard
+from leaderboard import Leaderboard, analyze
 
 
 class Game:
-    def __init__(self, player, ai=False):
+    def __init__(self, player):
         self.used = []
         self.player = player
-        self.ai = ai
         self.test = False
         self.final_scores = []
         
@@ -55,11 +54,11 @@ class Game:
 
     def run_leaderboard(self):
         '''Runs the leaderboard'''
-        leaderboard = Leaderboard(self.gen)
+        leaderboard = Leaderboard(self.player.generation)
         leaderboard.run(self.final_scores)
     
     def run_analysis(self):
         '''Prints out analysis of the current gen.'''
-        ## ADD
+        analyze(self.player.generation)
 
 

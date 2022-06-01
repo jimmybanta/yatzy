@@ -5,6 +5,8 @@ from hand import YatzyHand
 import pdb
 
 class AIGenFourPointZero(AIGenThreePointTwo):
+    '''Aims for the bottom sheet first, then for 3 of any in the top-sheet, then chooses a move by highest score.
+        Always rerolls; Rerolls any 1's, 2's, or 3's. If there are none, 50% chance of rerolling a 4, 5, or 6.'''
     def __init__(self, name, generation='4.0'):
         super().__init__(name, generation=generation)
 
@@ -14,6 +16,9 @@ class AIGenFourPointZero(AIGenThreePointTwo):
 
 
 class AIGenFourPointOne(AIGenThreePointTwo):
+    '''Aims for more yatzy's than Gen 4.0 by, if there's 4-of-a-kind, rerolling the odd one out.
+        Then aims for the bottom sheet, then for 3 of any in the top-sheet, then chooses a move by highest score.
+        Always rerolls; Rerolls any 1's, 2's, or 3's. If there are none, 50% chance of rerolling a 4, 5, or 6.'''
     def __init__(self, name, generation='4.1'):
         super().__init__(name, generation=generation)
         self.override_values = {'large_straight': 20, 'small_straight': 15, 'full_house': 22,
@@ -31,7 +36,7 @@ class AIGenFourPointOne(AIGenThreePointTwo):
         return super().override(hand)
 
 
-    def choose_nums(self, hand):
+    def choose_indices(self, hand):
 
         if hand.four_kind() and not hand.yatzy():
             return [0] if hand[0] != hand[1] else [4]
@@ -40,6 +45,9 @@ class AIGenFourPointOne(AIGenThreePointTwo):
 
 
 class AIGenFourPointTwo(AIGenFourPointOne):
+    '''Aims for more yatzy's than Gen 4.0 by, if there's 4-of-a-kind, rerolling the odd one out.
+        Then aims for the top-sheet, then for the bottom sheet, then chooses a move by highest score.
+        Always rerolls; If 4-of-a-kind, rerolls to try to get yatzy. Otherwise randomly rerolls.'''
     def __init__(self, name, generation='4.2'):
         super().__init__(name, generation=generation)
         self.prob = 0.5
@@ -49,16 +57,16 @@ class AIGenFourPointTwo(AIGenFourPointOne):
                                 'four_kind': 20, 'three_kind': 15, 
                                 'two_pair': 18, 'chance': 25}
 
-    def choose_nums(self, hand):
+    def choose_indices(self, hand):
         if hand.four_kind() and not hand.yatzy():
             return [0] if hand[0] != hand[1] else [4]
 
         return [i for i in range(5) if random.random() < self.prob]
         
 
-
-
 class AIGenFourPointThree(AIGenFourPointTwo):
+    '''Aims for the top-sheet bonus. Then aims for the yatzy's, then for the bottom sheet, then chooses a move by highest score.
+        Always rerolls; If 4-of-a-kind, rerolls to try to get yatzy. Otherwise randomly rerolls.'''
     def __init__(self, name, generation='4.3'):
         super().__init__(name, generation=generation)
         self.prob = 0.5
