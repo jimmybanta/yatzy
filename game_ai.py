@@ -219,6 +219,6 @@ if __name__ == "__main__":
 
 
 
-    game = AIGame(100, AIGenFivePointTwo('karen'))
+    game = AIGame(10000, AIGenFivePointTwo('karen'))
 
     game.play()

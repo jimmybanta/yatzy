@@ -9,8 +9,6 @@ import itertools as it
 import math
 import re
 
-from ai_gen_7 import AIGenSevenPointZero
-from player import Player
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
@@ -77,7 +75,8 @@ class RerollReplayMemory(ReplayMemory):
 
 # Gen 8.0
 
-def create_action_dict(player):
+def create_value_action_dict(player):
+    '''Creates a dictionary mapping values to actions.'''
     actions = {}
 
     counter = 0
@@ -96,6 +95,17 @@ def create_action_dict(player):
         counter += 1
     
     return actions
+
+def create_action_value_dict(actions):
+    final = {}
+
+    for key, value in actions.items():
+        final[value] = key
+    
+    return final
+
+
+
 
 
 def available_actions(scoresheet, reroll=False):
@@ -227,3 +237,8 @@ def available_indices():
             final.append(comb)
     return final
 
+
+
+if __name__ == '__main__':
+    player = AIGenThreePointOne('karen')
+    print(create_state(player.scoresheet, YatzyHand()))

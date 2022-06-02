@@ -1,8 +1,12 @@
 import csv
 import random
 import datetime
+import torch
+import itertools as it
+import json
 
 from hand import YatzyHand
+from deep_rl import create_state
 
 class Player:
     '''A player. Has a name, generation, whether it's an ai or human, and a scoresheet.'''
@@ -10,6 +14,8 @@ class Player:
         self.name = name
         self.ai = ai
         self.generation = generation
+        self.game_data = {}
+        self.three_hundred_game_data = {}
         self.scoresheet = {
             'ones': None, 
             'twos': None, 
@@ -35,7 +41,7 @@ class Player:
     
     @property
     def top_options(self):
-        '''REturns the categories available in the top-sheet.'''
+        '''Returns the categories available in the top-sheet.'''
         top = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes']
         return [category for category in top if self.scoresheet[category] is None]
     
@@ -77,6 +83,78 @@ class Player:
             if self.scoresheet[category] != None:
                 score += self.scoresheet[category]
         return score
+
+    def check_end(self):
+        return not self.options
+
+    def create_action_dict(self):
+        '''Returns a dict with moves as the keys, and their number as the value.'''
+        actions = {}
+
+        counter = 0
+        for action in self.scoresheet.keys():
+            actions[action] = counter
+            counter += 1
+
+        rerolls = []
+        for i in range(1, 6):   
+            for combo in it.combinations([0, 1, 2, 3, 4], r=i):
+                rerolls.append('reroll {}'.format(combo))
+
+        for roll in rerolls:
+            actions[roll] = counter
+            counter += 1
+        
+        return actions
+
+    def create_state(self, hand):
+        s = []
+
+        for key, value in self.scoresheet.items():
+            if not isinstance(value, int):
+                s.append(0)
+            else:
+                s.append(value)
+
+        for die in hand:
+            s.append(float(die) * 10)
+
+        return torch.tensor(s)
+
+    def create_action_value(self, move):
+        action_dict = self.create_action_dict()
+        return action_dict[move]
+
+
+    def save_state_move(self, state, move):
+        '''Saves state-move pairs into game_data.'''
+        self.game_data[state] = move
+
+        
+    def save_game_data(self, filename):
+        with open('{}'.format(filename), 'w') as file:
+            temp = {}
+            for key, value in self.three_hundred_game_data.items():
+                temp[str(key)] = str(value)
+
+            temp = sorted(temp.items(), key=lambda x:x[0])
+            d = {}
+            for item in temp:
+                d[item[0]] = item[1]
+
+            json.dump(d, file, indent=2)
+    
+    def update_three_hundred(self):
+        for key, value in self.game_data.items():
+            self.three_hundred_game_data[key] = value
+
+
+
+
+
+
+
+
 
 
 class HumanPlayer(Player):
@@ -184,6 +262,31 @@ class AIPlayer(Player):
 
         self.update_scoresheet(move, score)
         self.print_scoresheet()
+    
+    def data_turn(self):
+        '''A turn that gathers data, and only keeps it if the score is over 'min'.'''
+        hand = YatzyHand()
+
+        rerolls = 0
+        while rerolls < 2:
+            if self.choose_reroll(hand):
+                state = self.create_state(hand)
+                rerolls += 1
+                indices = self.choose_indices(hand)
+                move = f'reroll {tuple(indices)}'
+                self.save_state_move(state, move)
+                hand = hand.reroll(indices)
+            else:
+                break
+        
+        state = self.create_state(hand)
+        move = self.choose_move(hand)
+        self.save_state_move(state, move)
+
+        score = getattr(hand, move)()
+
+        self.update_scoresheet(move, score)
+
 
 
 
@@ -191,12 +294,7 @@ class AIPlayer(Player):
 
 if __name__ == '__main__':
     player = Player('karen')
+    hand = YatzyHand()
 
-    for c in player.scoresheet:
-        if random.random() < 0.5:
-            player.scoresheet[c] = 1
     
-    print(player.scoresheet)
-    print(player.options)
-    print(player.top_options)
-    print(player.bottom_options)
+    print(create_state(player.scoresheet, hand))

@@ -82,7 +82,7 @@ class AIGenFivePointTwo(AIGenFivePointOne):
         Then it prioritizes top-sheet by rerolling to try to get at least 3 of a number.
         Then bottom-sheet, then chooses a move randomly - first from bottom sheet, then from top. 
         Always rerolls. Chooses indicess by rerolling for top-sheet, then yatzy, then rerolling lower dice.'''
-    def __init__(self, name, generation='5.2.1'):
+    def __init__(self, name, generation='5.2'):
         super().__init__(name, generation=generation)
         self.override_values = {'yatzy': 50, 'sixes': 18, 'fives': 15, 'fours': 12, 
                                 'threes': 9, 'twos': 6, 'ones': 3, 
@@ -131,6 +131,9 @@ class AIGenFivePointTwo(AIGenFivePointOne):
         indices_upper = [i for i in range(5) if random.random() < self.prob]
 
         return indices_lower if indices_lower else indices_upper
+
+
+
 
 
 
