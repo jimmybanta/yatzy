@@ -6,6 +6,7 @@ import random
 import datetime
 
 from numpy import average
+from ai_gen_10 import AIGenTenPointZero
 
 
 from hand import YatzyHand
@@ -219,6 +220,6 @@ if __name__ == "__main__":
 
 
 
-    game = AIGame(10000, AIGenFivePointTwo('karen'))
+    game = AITest(AIGenTenPointZero('karen'))
 
     game.play()

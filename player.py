@@ -15,7 +15,7 @@ class Player:
         self.ai = ai
         self.generation = generation
         self.game_data = {}
-        self.three_hundred_game_data = {}
+        self.lim_data = {}
         self.scoresheet = {
             'ones': None, 
             'twos': None, 
@@ -133,20 +133,15 @@ class Player:
         
     def save_game_data(self, filename):
         with open('{}'.format(filename), 'w') as file:
-            temp = {}
-            for key, value in self.three_hundred_game_data.items():
-                temp[str(key)] = str(value)
-
-            temp = sorted(temp.items(), key=lambda x:x[0])
             d = {}
-            for item in temp:
-                d[item[0]] = item[1]
-
+            for key, value in self.lim_data.items():
+                d[str(key)] = str(value)
+                
             json.dump(d, file, indent=2)
     
-    def update_three_hundred(self):
+    def update_lim_data(self):
         for key, value in self.game_data.items():
-            self.three_hundred_game_data[key] = value
+            self.lim_data[key] = value
 
 
 
