@@ -13,7 +13,13 @@ from hand import YatzyHand
 from leaderboard import Leaderboard
 from game import Game
 
-from ai_gen_5 import AIGenFivePointTwo
+from ai_gen_1 import AIGenOnePointZero
+from ai_gen_2 import AIGenTwoPointZero
+from ai_gen_3 import AIGenThreePointZero
+from ai_gen_4 import AIGenFourPointZero
+from ai_gen_5 import AIGenFivePointZero
+#from ai_gen_6 import ai_gen_sixpointzero
+
 
 
 
@@ -42,7 +48,7 @@ class AIGame(Game):
         '''Returns a random name.'''
         first_name = random.choice(self.first_names)
         last_name = random.choice(self.last_names)
-        return first_name + last_name
+        return f'{first_name} {last_name}'
 
 
     def play(self):
@@ -219,7 +225,23 @@ class AITest(AIGame):
 if __name__ == "__main__":
 
 
+    ## gen 1 -- completely randomly
+    #game = AIGame(1000, AIGenOnePointZero('karen'))
 
-    game = AITest(AIGenTenPointZero('karen'))
+    ## gen 2 -- goes for the max scoring move
+    #game = AIGame(1000, AIGenTwoPointZero('karen'))
+
+    ## gen 3 -- goes for the high scoring moves (yatzy, full house, straight, etc.)
+    game = AIGame(1000, AIGenThreePointZero('karen'))
+
+    ## gen 4 -- goes for the high scoring moves; if those aren't available, aim to maximize the lower scores
+    #game = AIGame(1000, AIGenFourPointZero('karen'))
+
+    ## gen 5 -- prioritizes the top sheet bonus (63+ points in the top sheet gives you an extra 50)
+    #game = AIGame(1000, AIGenFivePointZero('karen'))
+
+    ## gen 6 -- using Reinforcement learning to learn the best strategy
+    #game = AIGame(1000, ai_gen_sixpointzero('karen'))
+
 
     game.play()

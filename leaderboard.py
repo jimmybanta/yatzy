@@ -43,10 +43,11 @@ class Leaderboard(list):
     def update(self, final_scores):
         for score in final_scores:
             self.append(score)
-
+        
         self.sort(key=lambda x:x['score'], reverse=True)
 
     def write(self):
+
         with open('leaderboards/lboard_{}.csv'.format(self.gen), 'w') as file:
             fields = ['generation', 'name', 'score']
             writer = csv.DictWriter(file, fieldnames=fields)
@@ -162,18 +163,19 @@ class TopTen(list):
 
     def load(self):
         for generation in self.generations:
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                value = 0
-                for row in reader:
-                    if value > 20:
-                        break
-                    d = {}
-                    d['generation'] = row['generation']
-                    d['name'] = row['name']
-                    d['score'] = row['score']
-                    self.append(d)
-                    value += 1
+            if os.path.exists('leaderboards/lboard_{}.csv'.format(generation)):
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    value = 0
+                    for row in reader:
+                        if value > 20:
+                            break
+                        d = {}
+                        d['generation'] = row['generation']
+                        d['name'] = row['name']
+                        d['score'] = row['score']
+                        self.append(d)
+                        value += 1
         
         self.sort(key=lambda x:int(x['score']), reverse=True)
 
@@ -207,23 +209,24 @@ class BottomTen(TopTen):
     def load(self):
         for generation in self.generations:
             length = 0
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    length += 1
+            if os.path.exists('leaderboards/lboard_{}.csv'.format(generation)):
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        length += 1
 
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                value = 0
-                for row in reader:
-                    value += 1
-                    if value < length - 20:
-                        continue
-                    d = {}
-                    d['generation'] = row['generation']
-                    d['name'] = row['name']
-                    d['score'] = row['score']
-                    self.append(d)
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    value = 0
+                    for row in reader:
+                        value += 1
+                        if value < length - 20:
+                            continue
+                        d = {}
+                        d['generation'] = row['generation']
+                        d['name'] = row['name']
+                        d['score'] = row['score']
+                        self.append(d)
 
 
         self.sort(key=lambda x:int(x['score']))
@@ -251,18 +254,19 @@ class BottomTen(TopTen):
 class TopFifty(TopTen):
     def load(self):
         for generation in self.generations:
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                value = 0
-                for row in reader:
-                    if value > 50:
-                        break
-                    d = {}
-                    d['generation'] = row['generation']
-                    d['name'] = row['name']
-                    d['score'] = row['score']
-                    self.append(d)
-                    value += 1
+            if os.path.exists('leaderboards/lboard_{}.csv'.format(generation)):
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    value = 0
+                    for row in reader:
+                        if value > 50:
+                            break
+                        d = {}
+                        d['generation'] = row['generation']
+                        d['name'] = row['name']
+                        d['score'] = row['score']
+                        self.append(d)
+                        value += 1
         
         self.sort(key=lambda x:int(x['score']), reverse=True)
 
@@ -282,23 +286,24 @@ class BottomFifty(BottomTen):
     def load(self):
         for generation in self.generations:
             length = 0
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    length += 1
+            if os.path.exists('leaderboards/lboard_{}.csv'.format(generation)):
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        length += 1
 
-            with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
-                reader = csv.DictReader(file)
-                value = 0
-                for row in reader:
-                    value += 1
-                    if value < length - 50:
-                        continue
-                    d = {}
-                    d['generation'] = row['generation']
-                    d['name'] = row['name']
-                    d['score'] = row['score']
-                    self.append(d)
+                with open('leaderboards/lboard_{}.csv'.format(generation), 'r') as file:
+                    reader = csv.DictReader(file)
+                    value = 0
+                    for row in reader:
+                        value += 1
+                        if value < length - 50:
+                            continue
+                        d = {}
+                        d['generation'] = row['generation']
+                        d['name'] = row['name']
+                        d['score'] = row['score']
+                        self.append(d)
 
 
         self.sort(key=lambda x:int(x['score']))

@@ -155,4 +155,4 @@ if __name__ == "__main__":
 
 
     game = DeepRLGame('8.0.1')
-    game.play(10000)
+    game.play(1000)

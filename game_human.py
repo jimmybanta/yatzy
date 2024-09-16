@@ -11,7 +11,7 @@ from leaderboard import Leaderboard
 class HumanGame(Game):
     '''Allows a human to play a game by themself.'''
     def __init__(self):
-        super().__init__()
+        super().__init__(player=None)
         self.quit = False
         self.gen = 'human'
 

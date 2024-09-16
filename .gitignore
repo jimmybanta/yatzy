@@ -5,3 +5,7 @@ states.txt
 /.ipynb_checkpoints
 /test
 /new_hands
+Pipfile
+Pipfile.lock
+old_analysis.csv
+old_leaderboards/

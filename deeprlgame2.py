@@ -126,4 +126,4 @@ class DeepRLTest3DQN(DeepRLTest):
 
 if __name__ == '__main__':
     game = DeepRLGame3DQN('8.2.1')
-    game.play(10000)
+    game.play(1000)
