@@ -9,3 +9,4 @@ Pipfile
 Pipfile.lock
 old_analysis.csv
 old_leaderboards/
+sl_data/
